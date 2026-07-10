@@ -13,7 +13,8 @@
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/database/data-source.ts",
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/database/data-source.ts",
     "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/database/data-source.ts",
-    "openapi:generate": "ts-node src/scripts/generate-openapi.ts"
+    "openapi:generate": "ts-node src/scripts/generate-openapi.ts",
+    "seed": "ts-node src/scripts/seed.ts"
   },
   "dependencies": {
     "@datechain/types": "workspace:*",

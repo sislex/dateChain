@@ -20,7 +20,7 @@
 | 3    | 3.3 | Swipe + Match                             |   ✅   | 2026-07-11 | init   | SwipeService (идемпотентно, дневной лимит→429), MatchService (canonical-пара, unique, unmatch), взаимный лайк→мэтч + событие MATCH_CREATED (EventEmitter), rewind за флагом; 71 unit + 18 e2e зелёные                                                  |
 | 3    | 3.4 | Chat + WebSocket                          |   ✅   | 2026-07-11 | init   | Message-сущность, ChatService (треды, пагинация, read-статусы), Socket.IO gateway (JWT-auth сокета, комнаты по мэтчу, typing, presence, слушатель MATCH_CREATED), Redis-adapter; real-time e2e (2 клиента): доставка/typing/presence/401/403/пагинация |
 | 3    | 3.5 | Moderation + Notifications + Admin API    |   ✅   | 2026-07-11 | init   | Жалобы (авто-приоритет, очередь), блокировки (unmatch), уведомления (слушатели MATCH/MESSAGE→notification:new), Admin API (users/metrics/settings/impersonate) с аудит-логом, RBAC по ролям; 84 unit + 30 e2e (7 суит) зелёные                         |
-| 3    | 3.6 | Сиды и демо-данные                        |   ⬜   |            |        |                                                                                                                                                                                                                                                        |
+| 3    | 3.6 | Сиды и демо-данные                        |   ✅   | 2026-07-11 | init   | seed-скрипт (`pnpm seed`): N демо-профилей с гео, интересами и фото (sharp+blurhash на диск); e2e: seed наполняет БД, discovery для сид-пользователя возвращает непустую колоду с фото. **Фаза 3 завершена**                                           |
 | 4    | 4.1 | Каркас user-web                           |   ⬜   |            |        |                                                                                                                                                                                                                                                        |
 | 4    | 4.2 | Авторизация и онбординг                   |   ⬜   |            |        |                                                                                                                                                                                                                                                        |
 | 4    | 4.3 | Discovery / свайпы                        |   ⬜   |            |        |                                                                                                                                                                                                                                                        |
@@ -132,3 +132,9 @@
   `/admin/*` с `@Roles` (metrics→Analyst, users→Support, status→Moderator, impersonate→SuperAdmin, audit/settings→Admin).
   Миграция `ModerationAdmin`. Тесты: unit (priority, block-unmatch, метрики-агрегатор, ban→revoke+аудит) +
   e2e: жалоба→очередь, блок→чат пуст, ban→аудит, метрики, RBAC moderator→403 (audit/impersonate), superadmin impersonate. 84 unit + 30 e2e (7 суит).
+- **2026-07-11 — Шаг 3.6.** Сиды. `seedDatabase(ds, opts)` + CLI `pnpm seed` (root+api): создаёт N демо-юзеров
+  (телефон по префиксу), профили с чередованием пол/interestedIn (взаимный подбор гарантирован), гео вокруг
+  центра с джиттером + `ST_MakePoint`, интересы/био, по фото на юзера (sharp solid-color full+thumb на диск +
+  blurhash). Идемпотентно (пропуск существующих телефонов). e2e: `seedDatabase(count:20)` → 20 профилей в БД,
+  OTP-логин сид-юзера → `GET /discovery/deck` непустой, у кандидата есть фото. 84 unit + 31 e2e (8 суит).
+  **Фаза 3 (доменная логика бекенда) завершена.** Итог бекенда: 10 доменов, 6 миграций, ~40 REST + WS-gateway.
