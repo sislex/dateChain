@@ -57,6 +57,11 @@ jobs:
       - name: Prettier check
         run: pnpm -w format:check
 
+      - name: OpenAPI types up to date
+        run: |
+          pnpm gen:types
+          git diff --exit-code openapi.json packages/api-client/src/schema.ts
+
   storybook:
     name: Storybook build & interaction tests
     runs-on: ubuntu-latest

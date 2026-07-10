@@ -12,7 +12,8 @@
     "test:e2e": "jest --config test/jest-e2e.config.cjs --runInBand",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/database/data-source.ts",
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/database/data-source.ts",
-    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/database/data-source.ts"
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/database/data-source.ts",
+    "openapi:generate": "ts-node src/scripts/generate-openapi.ts"
   },
   "dependencies": {
     "@datechain/types": "workspace:*",
@@ -20,6 +21,7 @@
     "@nestjs/config": "^3.2.3",
     "@nestjs/core": "^10.4.0",
     "@nestjs/platform-express": "^10.4.0",
+    "@nestjs/swagger": "^7.4.0",
     "@nestjs/terminus": "^10.2.3",
     "@nestjs/typeorm": "^10.0.2",
     "class-transformer": "^0.5.1",

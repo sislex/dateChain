@@ -1,4 +1,5 @@
 import { Controller, Get } from "@nestjs/common";
+import { ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import {
   HealthCheck,
   HealthCheckService,
@@ -8,6 +9,7 @@ import {
 
 import { RedisHealthIndicator } from "./redis.health";
 
+@ApiTags("health")
 @Controller("health")
 export class HealthController {
   constructor(
@@ -18,6 +20,7 @@ export class HealthController {
 
   @Get()
   @HealthCheck()
+  @ApiOkResponse({ description: "Service is healthy (database and redis reachable)." })
   check(): Promise<HealthCheckResult> {
     return this.health.check([
       () => this.db.pingCheck("database"),

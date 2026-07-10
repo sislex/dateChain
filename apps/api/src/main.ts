@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 
 import { AppModule } from "./app.module";
+import { setupSwagger } from "./swagger";
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
@@ -10,6 +11,7 @@ async function bootstrap(): Promise<void> {
     new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }),
   );
   app.enableShutdownHooks();
+  setupSwagger(app);
 
   const config = app.get(ConfigService);
   const port = config.get<number>("API_PORT", 3000);

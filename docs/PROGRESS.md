@@ -13,7 +13,7 @@
 | 1    | 1.2 | Базовые компоненты                        |   ✅   | 2026-07-10 | init   | 17 компонентов (Button/IconButton/Input/TextArea/Select/Switch/Checkbox/Slider/Avatar/Badge/Chip/Spinner/Skeleton/Toast/Modal+Sheet/Tabs/Bottom+SideNav), stories, a11y; 59 interaction-тестов зелёные |
 | 1    | 1.3 | Доменные UI-компоненты Tinder             |   ✅   | 2026-07-10 | init   | Logo, SwipeCard (drag+метки+fly-off), ActionBar, MatchScreen, PhotoPager, ProfileDetails, ChatBubble/TypingIndicator/MatchListItem; Framer Motion, reduce-motion; 71 SB-тест + 7 unit зелёные          |
 | 2    | 2.1 | Каркас NestJS + БД                        |   ✅   | 2026-07-10 | init   | NestJS 10 + TypeORM + Redis, ConfigModule с валидацией env, health-check (db+redis), первая миграция (up/down), Testcontainers e2e; unit+e2e зелёные, CI-джоба api-e2e                                 |
-| 2    | 2.2 | OpenAPI + генерация типов                 |   ⬜   |            |        |                                                                                                                                                                                                        |
+| 2    | 2.2 | OpenAPI + генерация типов                 |   ✅   | 2026-07-10 | init   | Swagger на /api/docs (+/api/docs-json), preview-режим генерации спеки без БД, пакет api-client с openapi-typescript; /api/docs 200 вживую, api-client typecheck ок, CI drift-check                     |
 | 2    | 2.3 | Auth (OTP + JWT + RBAC)                   |   ⬜   |            |        |                                                                                                                                                                                                        |
 | 3    | 3.1 | Profile + Media                           |   ⬜   |            |        |                                                                                                                                                                                                        |
 | 3    | 3.2 | Discovery (гео + фильтры)                 |   ⬜   |            |        |                                                                                                                                                                                                        |
@@ -73,3 +73,10 @@
   up/down). Тесты: unit (валидация env) + e2e на Testcontainers (postgis+redis): миграция up/down и
   `GET /health` → 200. Проверено: unit + e2e (EXIT=0, forceExit) зелёные; build/lint/typecheck/format чистые.
   Добавлена CI-джоба `api-e2e`. Замечание: e2e требует Docker; `forceExit` — из-за docker-socket хендла Testcontainers.
+- **2026-07-10 — Шаг 2.2.** OpenAPI: `@nestjs/swagger`, Swagger UI на `/api/docs`, JSON на `/api/docs-json`,
+  bearer-auth схема. Скрипт `openapi:generate` через **preview-режим Nest** (граф модулей без подключения
+  к БД/Redis) → `openapi.json`. Пакет `@datechain/api-client`: `openapi-typescript` генерирует `schema.ts`,
+  реэкспорт `paths/components/operations`. Root-скрипты `gen:openapi`/`gen:types`. Проверено вживую:
+  `/health` 200, `/api/docs` 200, `/api/docs-json` отдаёт спеку; `api-client` typecheck без ошибок (импорт
+  сгенерированных типов). CI: drift-check (`gen:types` + `git diff --exit-code`). Генерируемые файлы в `.prettierignore`.
+  Замечание: пока единственный документированный путь — `/health`; типы дозаполнятся при добавлении доменных эндпоинтов (Фаза 3).
