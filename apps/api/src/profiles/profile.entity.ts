@@ -52,6 +52,16 @@ export class Profile {
   @Column({ type: "boolean", default: true })
   discoverable!: boolean;
 
+  /** Discovery preferences. */
+  @Column({ type: "int", default: 80 })
+  radiusKm!: number;
+
+  @Column({ type: "int", default: 18 })
+  ageMin!: number;
+
+  @Column({ type: "int", default: 100 })
+  ageMax!: number;
+
   @CreateDateColumn({ type: "timestamptz" })
   createdAt!: Date;
 

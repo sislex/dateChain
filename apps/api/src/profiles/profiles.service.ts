@@ -60,6 +60,9 @@ export class ProfilesService {
       lat: dto.lat ?? null,
       lng: dto.lng ?? null,
       discoverable: dto.discoverable ?? existing?.discoverable ?? true,
+      radiusKm: dto.radiusKm ?? existing?.radiusKm ?? 80,
+      ageMin: dto.ageMin ?? existing?.ageMin ?? 18,
+      ageMax: dto.ageMax ?? existing?.ageMax ?? 100,
     });
     await this.profiles.save(profile);
 

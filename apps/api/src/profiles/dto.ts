@@ -93,6 +93,30 @@ export class UpsertProfileDto {
   @IsOptional()
   @IsBoolean()
   discoverable?: boolean;
+
+  @ApiPropertyOptional({ minimum: 1, maximum: 300 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(300)
+  radiusKm?: number;
+
+  @ApiPropertyOptional({ minimum: 18, maximum: 100 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(18)
+  @Max(100)
+  ageMin?: number;
+
+  @ApiPropertyOptional({ minimum: 18, maximum: 100 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(18)
+  @Max(100)
+  ageMax?: number;
 }
 
 export class ReorderPhotosDto {

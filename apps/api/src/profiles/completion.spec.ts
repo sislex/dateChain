@@ -18,6 +18,9 @@ const full: Profile = {
   lat: 55.75,
   lng: 37.61,
   discoverable: true,
+  radiusKm: 80,
+  ageMin: 18,
+  ageMax: 100,
   createdAt: new Date(),
   updatedAt: new Date(),
 };

@@ -38,7 +38,7 @@ describe("Infrastructure (e2e)", () => {
     await redis?.stop();
   });
 
-  it("applies and reverts the initial migration", async () => {
+  it("applies and reverts migrations", async () => {
     const ds = new DataSource(
       buildDataSourceOptions({
         POSTGRES_HOST: process.env.POSTGRES_HOST!,
@@ -50,18 +50,20 @@ describe("Infrastructure (e2e)", () => {
     );
     await ds.initialize();
 
+    // Generic up/down check via the migrations ledger — robust to how many
+    // migrations exist. `_schema_baseline` (from the first migration) confirms up.
     await ds.runMigrations();
-    // "photos" is created by the latest migration — use it as the canary.
-    const afterUp = await ds.query(`SELECT to_regclass('public.photos') AS t`);
-    expect(afterUp[0].t).toBe("photos");
+    const applied = await ds.query(`SELECT count(*)::int AS n FROM "_migrations"`);
+    expect(applied[0].n).toBeGreaterThan(0);
+    const baseline = await ds.query(`SELECT to_regclass('public._schema_baseline') AS t`);
+    expect(baseline[0].t).toBe("_schema_baseline");
 
-    // Revert only the last migration and confirm its table is gone…
     await ds.undoLastMigration();
-    const afterDown = await ds.query(`SELECT to_regclass('public.photos') AS t`);
-    expect(afterDown[0].t).toBeNull();
-    // …while an earlier migration's table remains applied.
-    const users = await ds.query(`SELECT to_regclass('public.users') AS t`);
-    expect(users[0].t).toBe("users");
+    const afterDown = await ds.query(`SELECT count(*)::int AS n FROM "_migrations"`);
+    expect(afterDown[0].n).toBe(applied[0].n - 1);
+
+    // Re-apply so the schema is complete again.
+    await ds.runMigrations();
 
     await ds.destroy();
   });

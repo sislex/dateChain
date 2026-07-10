@@ -359,6 +359,34 @@
         ]
       }
     },
+    "/discovery/deck": {
+      "get": {
+        "operationId": "DiscoveryController_deck",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "discovery"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
     "/health": {
       "get": {
         "operationId": "HealthController_check",
@@ -681,6 +709,21 @@
           },
           "discoverable": {
             "type": "boolean"
+          },
+          "radiusKm": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 300
+          },
+          "ageMin": {
+            "type": "number",
+            "minimum": 18,
+            "maximum": 100
+          },
+          "ageMax": {
+            "type": "number",
+            "minimum": 18,
+            "maximum": 100
           }
         },
         "required": [

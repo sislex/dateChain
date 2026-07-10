@@ -7,6 +7,7 @@ import { AuthModule } from "./auth/auth.module";
 import { JwtAuthGuard, RolesGuard } from "./auth/guards";
 import { validateEnv } from "./config/env.validation";
 import { buildDataSourceOptions } from "./database/typeorm.config";
+import { DiscoveryModule } from "./discovery/discovery.module";
 import { HealthModule } from "./health/health.module";
 import { ProfilesModule } from "./profiles/profiles.module";
 import { RedisModule } from "./redis/redis.module";
@@ -37,6 +38,7 @@ import { UsersModule } from "./users/users.module";
     UsersModule,
     AuthModule,
     ProfilesModule,
+    DiscoveryModule,
     HealthModule,
   ],
   providers: [
