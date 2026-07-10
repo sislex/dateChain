@@ -1,0 +1,54 @@
+.mobile {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  background: var(--dc-color-bg);
+}
+
+.desktop {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  height: 100dvh;
+  background: var(--dc-color-bg);
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dc-space-4);
+  border-right: 1px solid var(--dc-color-border);
+  padding: var(--dc-space-4) 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--dc-space-2);
+  padding: 0 var(--dc-space-4);
+}
+
+.brandName {
+  font-family: var(--dc-font-family);
+  font-weight: var(--dc-font-weight-bold);
+  font-size: var(--dc-font-size-lg);
+  background: var(--dc-gradient-flame);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.content {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mobile .content {
+  flex: 1;
+  min-height: 0;
+}
+
+.bottomBar {
+  flex-shrink: 0;
+}

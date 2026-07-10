@@ -21,7 +21,7 @@
 | 3    | 3.4 | Chat + WebSocket                          |   ✅   | 2026-07-11 | init   | Message-сущность, ChatService (треды, пагинация, read-статусы), Socket.IO gateway (JWT-auth сокета, комнаты по мэтчу, typing, presence, слушатель MATCH_CREATED), Redis-adapter; real-time e2e (2 клиента): доставка/typing/presence/401/403/пагинация |
 | 3    | 3.5 | Moderation + Notifications + Admin API    |   ✅   | 2026-07-11 | init   | Жалобы (авто-приоритет, очередь), блокировки (unmatch), уведомления (слушатели MATCH/MESSAGE→notification:new), Admin API (users/metrics/settings/impersonate) с аудит-логом, RBAC по ролям; 84 unit + 30 e2e (7 суит) зелёные                         |
 | 3    | 3.6 | Сиды и демо-данные                        |   ✅   | 2026-07-11 | init   | seed-скрипт (`pnpm seed`): N демо-профилей с гео, интересами и фото (sharp+blurhash на диск); e2e: seed наполняет БД, discovery для сид-пользователя возвращает непустую колоду с фото. **Фаза 3 завершена**                                           |
-| 4    | 4.1 | Каркас user-web                           |   ⬜   |            |        |                                                                                                                                                                                                                                                        |
+| 4    | 4.1 | Каркас user-web                           |   ✅   | 2026-07-11 | init   | Vite+React+RTK+RTK Query+Router, socket-middleware (auto-connect по auth), authSlice с refresh-ротацией, adaptive layout (BottomNav mobile / SideNav desktop из @datechain/ui), ProtectedRoute; build+preview 200, 6 unit-тестов зелёные               |
 | 4    | 4.2 | Авторизация и онбординг                   |   ⬜   |            |        |                                                                                                                                                                                                                                                        |
 | 4    | 4.3 | Discovery / свайпы                        |   ⬜   |            |        |                                                                                                                                                                                                                                                        |
 | 4    | 4.4 | Фильтры подбора                           |   ⬜   |            |        |                                                                                                                                                                                                                                                        |
@@ -138,3 +138,10 @@
   blurhash). Идемпотентно (пропуск существующих телефонов). e2e: `seedDatabase(count:20)` → 20 профилей в БД,
   OTP-логин сид-юзера → `GET /discovery/deck` непустой, у кандидата есть фото. 84 unit + 31 e2e (8 суит).
   **Фаза 3 (доменная логика бекенда) завершена.** Итог бекенда: 10 доменов, 6 миграций, ~40 REST + WS-gateway.
+- **2026-07-11 — Шаг 4.1.** Каркас `apps/user-web` (Vite + React 18): Redux Toolkit store (authSlice с
+  persist в localStorage + refresh-ротация), RTK Query `baseApi` (prepareHeaders + auto-reauth на 401),
+  socket-middleware (единый Socket.IO, auto-connect при появлении токена, релей событий в DOM-шину `getSocket`),
+  React Router с `ProtectedRoute` (редирект неавторизованного на `/welcome`), `AppLayout` — адаптив через
+  `useBreakpoint`: BottomNav (mobile) / SideNav (desktop) **из `@datechain/ui`** (никаких дублей компонентов),
+  WelcomePage + placeholder-страницы. Vitest. Проверено: `tsc`+`vite build` ок, `vite preview` отдаёт SPA (200),
+  6 unit-тестов (authSlice, breakpoint, ProtectedRoute-редирект) зелёные; lint/format чисты.
