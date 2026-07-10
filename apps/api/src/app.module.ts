@@ -8,6 +8,7 @@ import { JwtAuthGuard, RolesGuard } from "./auth/guards";
 import { validateEnv } from "./config/env.validation";
 import { buildDataSourceOptions } from "./database/typeorm.config";
 import { HealthModule } from "./health/health.module";
+import { ProfilesModule } from "./profiles/profiles.module";
 import { RedisModule } from "./redis/redis.module";
 import { UsersModule } from "./users/users.module";
 
@@ -35,6 +36,7 @@ import { UsersModule } from "./users/users.module";
     RedisModule,
     UsersModule,
     AuthModule,
+    ProfilesModule,
     HealthModule,
   ],
   providers: [

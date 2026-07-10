@@ -164,6 +164,201 @@
         ]
       }
     },
+    "/profile/me": {
+      "get": {
+        "operationId": "ProfilesController_getMine",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "profile"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "ProfilesController_upsert",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "profile"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/profile/me/photos": {
+      "get": {
+        "operationId": "ProfilesController_listPhotos",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "profile"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "ProfilesController_uploadPhoto",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "profile"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/profile/me/photos/reorder": {
+      "patch": {
+        "operationId": "ProfilesController_reorder",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderPhotosDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "profile"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/profile/me/photos/{id}": {
+      "delete": {
+        "operationId": "ProfilesController_deletePhoto",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "profile"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/media/photo/{id}": {
+      "get": {
+        "operationId": "MediaController_full",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "media"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/media/photo/{id}/thumb": {
+      "get": {
+        "operationId": "MediaController_thumb",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "media"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
     "/health": {
       "get": {
         "operationId": "HealthController_check",
@@ -423,6 +618,91 @@
         "required": [
           "email",
           "password"
+        ]
+      },
+      "UpsertProfileDto": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string"
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "1996-04-12",
+            "description": "ISO date; user must be 18+"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "MAN",
+              "WOMAN",
+              "MORE"
+            ]
+          },
+          "interestedIn": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "MAN",
+                "WOMAN",
+                "MORE"
+              ]
+            }
+          },
+          "bio": {
+            "type": "string"
+          },
+          "interests": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "job": {
+            "type": "string"
+          },
+          "school": {
+            "type": "string"
+          },
+          "heightCm": {
+            "type": "number",
+            "minimum": 100,
+            "maximum": 250
+          },
+          "lookingFor": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          },
+          "discoverable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "displayName",
+          "birthDate",
+          "gender",
+          "interestedIn"
+        ]
+      },
+      "ReorderPhotosDto": {
+        "type": "object",
+        "properties": {
+          "order": {
+            "description": "Photo ids in the desired order",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "order"
         ]
       }
     }

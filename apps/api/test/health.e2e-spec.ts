@@ -51,16 +51,17 @@ describe("Infrastructure (e2e)", () => {
     await ds.initialize();
 
     await ds.runMigrations();
-    const afterUp = await ds.query(`SELECT to_regclass('public.users') AS t`);
-    expect(afterUp[0].t).toBe("users");
+    // "photos" is created by the latest migration — use it as the canary.
+    const afterUp = await ds.query(`SELECT to_regclass('public.photos') AS t`);
+    expect(afterUp[0].t).toBe("photos");
 
-    // Revert the last migration (AuthTables) and confirm its table is gone.
+    // Revert only the last migration and confirm its table is gone…
     await ds.undoLastMigration();
-    const afterDown = await ds.query(`SELECT to_regclass('public.users') AS t`);
+    const afterDown = await ds.query(`SELECT to_regclass('public.photos') AS t`);
     expect(afterDown[0].t).toBeNull();
-    // The earlier baseline migration is still applied.
-    const baseline = await ds.query(`SELECT to_regclass('public._schema_baseline') AS t`);
-    expect(baseline[0].t).toBe("_schema_baseline");
+    // …while an earlier migration's table remains applied.
+    const users = await ds.query(`SELECT to_regclass('public.users') AS t`);
+    expect(users[0].t).toBe("users");
 
     await ds.destroy();
   });

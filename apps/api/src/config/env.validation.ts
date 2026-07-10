@@ -64,6 +64,15 @@ export class EnvironmentVariables {
   @IsInt()
   @IsOptional()
   OTP_TTL_SECONDS = 300;
+
+  @IsString()
+  @IsOptional()
+  MEDIA_STORAGE_DIR = "./uploads";
+
+  @Type(() => Number)
+  @IsInt()
+  @IsOptional()
+  MEDIA_MAX_FILE_SIZE_MB = 10;
 }
 
 export function validateEnv(config: Record<string, unknown>): EnvironmentVariables {

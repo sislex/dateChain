@@ -15,7 +15,7 @@
 | 2    | 2.1 | Каркас NestJS + БД                        |   ✅   | 2026-07-10 | init   | NestJS 10 + TypeORM + Redis, ConfigModule с валидацией env, health-check (db+redis), первая миграция (up/down), Testcontainers e2e; unit+e2e зелёные, CI-джоба api-e2e                                 |
 | 2    | 2.2 | OpenAPI + генерация типов                 |   ✅   | 2026-07-10 | init   | Swagger на /api/docs (+/api/docs-json), preview-режим генерации спеки без БД, пакет api-client с openapi-typescript; /api/docs 200 вживую, api-client typecheck ок, CI drift-check                     |
 | 2    | 2.3 | Auth (OTP + JWT + RBAC)                   |   ✅   | 2026-07-11 | init   | OTP (Redis) + JWT access/refresh с ротацией и reuse-detection, RBAC (guard+@Roles), 2FA (TOTP) для админов; unit 94.6% покрытие auth, e2e: логин/refresh/reuse/401/403                                 |
-| 3    | 3.1 | Profile + Media                           |   ⬜   |            |        |                                                                                                                                                                                                        |
+| 3    | 3.1 | Profile + Media                           |   ✅   | 2026-07-11 | init   | Profile (upsert+18+, completion, гео-колонка), Photo + MediaService (sharp: full/thumb/blurhash на диск), upload/reorder/delete, отдача с проверкой владельца (403); 57 unit + 11 e2e зелёные          |
 | 3    | 3.2 | Discovery (гео + фильтры)                 |   ⬜   |            |        |                                                                                                                                                                                                        |
 | 3    | 3.3 | Swipe + Match                             |   ⬜   |            |        |                                                                                                                                                                                                        |
 | 3    | 3.4 | Chat + WebSocket                          |   ⬜   |            |        |                                                                                                                                                                                                        |
@@ -88,3 +88,11 @@
   `@Public/@Roles/@CurrentUser`. Контроллер: otp request/verify, refresh, logout, me, admin/login, admin/ping (RBAC-probe).
   Тесты: 47 unit (auth-домен **94.6%** stmts, ≥85%) + e2e на Testcontainers: OTP-логин→токены, `/auth/me`,
   ротация refresh, отказ reuse (401), защита без токена (401), admin-роут для user (403). **Фаза 2 (бекенд-фундамент) завершена.**
+- **2026-07-11 — Шаг 3.1.** Profile + Media. Сущности `Profile` (1:1 с User, гео-колонка `location`
+  geography+GiST для 3.2) и `Photo`; миграция `ProfilesAndPhotos`. `ProfilesService.upsert` (валидация 18+,
+  апдейт гео через ST_MakePoint, `computeCompletion`), `MediaService` (sharp: full 1080/thumb 256 JPEG +
+  BlurHash, файлы на диск), `PhotosService` (upload с позицией/main, reorder с проверкой набора id, delete
+  с компакцией позиций, `findOwned` → 403). Контроллеры profile (PUT/GET, photos CRUD, multipart-upload с
+  fileFilter) и media (StreamableFile с проверкой владельца). Тесты: 57 unit (completion/age, photos-логика)
+  - e2e: профиль 400 (<18, невалидный enum) и 200 с completion, upload→original+thumb+blurhash, отдача
+    владельцу 200 / чужому 403, reorder+delete. Регенерированы OpenAPI-типы.
