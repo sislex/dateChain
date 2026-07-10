@@ -1,0 +1,31 @@
+.skeleton {
+  display: block;
+  background: linear-gradient(
+    90deg,
+    var(--dc-color-surface-alt) 25%,
+    var(--dc-color-border) 37%,
+    var(--dc-color-surface-alt) 63%
+  );
+  background-size: 400% 100%;
+  animation: dc-shimmer 1.4s ease infinite;
+  border-radius: var(--dc-radius-sm);
+}
+
+.circle {
+  border-radius: 50%;
+}
+
+@keyframes dc-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}

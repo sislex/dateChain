@@ -1,0 +1,66 @@
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--dc-radius-pill);
+  background: var(--dc-color-surface);
+  border: 1px solid var(--dc-color-border);
+  box-shadow: var(--dc-shadow-button);
+  cursor: pointer;
+  color: var(--dc-color-text-secondary);
+  transition:
+    transform var(--dc-duration-fast) var(--dc-ease-standard),
+    box-shadow var(--dc-duration-fast) var(--dc-ease-standard);
+}
+
+.iconButton:hover:not(:disabled) {
+  transform: scale(1.06);
+}
+.iconButton:active:not(:disabled) {
+  transform: scale(0.94);
+}
+.iconButton:focus-visible {
+  outline: 2px solid var(--dc-color-superlike);
+  outline-offset: 2px;
+}
+.iconButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* sizes */
+.sm {
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+}
+.md {
+  width: 56px;
+  height: 56px;
+  font-size: 24px;
+}
+.lg {
+  width: 64px;
+  height: 64px;
+  font-size: 28px;
+}
+
+/* action accents (Tinder ActionBar) */
+.nope {
+  color: var(--dc-color-nope);
+}
+.like {
+  color: var(--dc-color-like);
+}
+.superlike {
+  color: var(--dc-color-superlike);
+}
+.boost {
+  color: var(--dc-color-boost);
+}
+.rewind {
+  color: #ffb02e;
+}
+.neutral {
+  color: var(--dc-color-text-secondary);
+}

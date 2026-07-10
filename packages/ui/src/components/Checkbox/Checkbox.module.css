@@ -1,0 +1,25 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dc-space-2);
+  font-family: var(--dc-font-family);
+  color: var(--dc-color-text);
+  cursor: pointer;
+}
+
+.input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--dc-color-flame-start);
+  cursor: pointer;
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--dc-color-superlike);
+  outline-offset: 2px;
+}
+
+.input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

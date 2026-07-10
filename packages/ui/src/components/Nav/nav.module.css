@@ -1,0 +1,78 @@
+/* shared nav item model for BottomNav (mobile) and SideNav (desktop) */
+
+.bottomNav {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 56px;
+  background: var(--dc-color-surface);
+  border-top: 1px solid var(--dc-color-border);
+  font-family: var(--dc-font-family);
+}
+
+.sideNav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dc-space-2);
+  padding: var(--dc-space-4);
+  background: var(--dc-color-surface);
+  border-right: 1px solid var(--dc-color-border);
+  font-family: var(--dc-font-family);
+  min-width: 220px;
+}
+
+.item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--dc-space-3);
+  border: none;
+  background: transparent;
+  color: var(--dc-color-text-secondary);
+  cursor: pointer;
+  padding: var(--dc-space-2) var(--dc-space-3);
+  border-radius: var(--dc-radius-md);
+  font-size: var(--dc-font-size-md);
+  transition: color var(--dc-duration-fast) var(--dc-ease-standard);
+}
+
+.item:hover {
+  color: var(--dc-color-text);
+}
+
+.item:focus-visible {
+  outline: 2px solid var(--dc-color-superlike);
+  outline-offset: 2px;
+}
+
+/* bottom nav items are icon-first, stacked, no visible label text */
+.bottomNav .item {
+  flex-direction: column;
+  gap: 2px;
+  font-size: 22px;
+}
+.bottomNav .label {
+  display: none;
+}
+
+.icon {
+  display: inline-flex;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.active {
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  background-image: var(--dc-gradient-flame);
+}
+.active .icon {
+  color: var(--dc-color-flame-start);
+}
+
+.badge {
+  position: absolute;
+  top: 2px;
+  right: 6px;
+}
