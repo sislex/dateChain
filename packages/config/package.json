@@ -1,0 +1,34 @@
+{
+  "name": "@datechain/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./eslint/base": "./eslint/base.cjs",
+    "./eslint/react": "./eslint/react.cjs",
+    "./eslint/node": "./eslint/node.cjs",
+    "./prettier": "./prettier/index.cjs",
+    "./jest/node": "./jest/node.cjs",
+    "./jest/react": "./jest/react.cjs",
+    "./tsconfig/base.json": "./tsconfig/base.json",
+    "./tsconfig/node.json": "./tsconfig/node.json",
+    "./tsconfig/react.json": "./tsconfig/react.json"
+  },
+  "files": [
+    "eslint",
+    "prettier",
+    "jest",
+    "tsconfig"
+  ],
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.7.0",
+    "@typescript-eslint/parser": "^7.7.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "eslint-plugin-react": "^7.34.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "ts-jest": "^29.1.2"
+  }
+}
