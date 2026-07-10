@@ -1,0 +1,113 @@
+.card {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--dc-radius-md);
+  overflow: hidden;
+  box-shadow: var(--dc-shadow-card);
+  background: var(--dc-color-surface-alt);
+  user-select: none;
+  touch-action: none;
+  cursor: grab;
+}
+
+.card:active {
+  cursor: grabbing;
+}
+
+.photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 45%);
+  pointer-events: none;
+}
+
+.info {
+  position: absolute;
+  left: var(--dc-space-4);
+  right: var(--dc-space-4);
+  bottom: var(--dc-space-4);
+  color: #fff;
+  font-family: var(--dc-font-family);
+}
+
+.nameRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--dc-space-2);
+}
+
+.name {
+  font-size: var(--dc-font-size-2xl);
+  font-weight: var(--dc-font-weight-bold);
+  margin: 0;
+}
+
+.age {
+  font-size: var(--dc-font-size-xl);
+  font-weight: var(--dc-font-weight-regular);
+}
+
+.distance {
+  font-size: var(--dc-font-size-sm);
+  opacity: 0.9;
+  margin-top: var(--dc-space-1);
+}
+
+.bio {
+  font-size: var(--dc-font-size-sm);
+  opacity: 0.9;
+  margin-top: var(--dc-space-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* stamp labels */
+.stamp {
+  position: absolute;
+  top: var(--dc-space-6);
+  padding: 6px var(--dc-space-4);
+  border: 4px solid;
+  border-radius: var(--dc-radius-md);
+  font-family: var(--dc-font-family);
+  font-size: var(--dc-font-size-xl);
+  font-weight: var(--dc-font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  pointer-events: none;
+}
+
+.stampLike {
+  left: var(--dc-space-6);
+  color: var(--dc-color-like);
+  border-color: var(--dc-color-like);
+  transform: rotate(-18deg);
+}
+
+.stampNope {
+  right: var(--dc-space-6);
+  color: var(--dc-color-nope);
+  border-color: var(--dc-color-nope);
+  transform: rotate(18deg);
+}
+
+.stampSuper {
+  left: 50%;
+  bottom: 25%;
+  top: auto;
+  transform: translateX(-50%) rotate(-10deg);
+  color: var(--dc-color-superlike);
+  border-color: var(--dc-color-superlike);
+}

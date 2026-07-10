@@ -1,1 +1,6 @@
-module.exports = require("@datechain/config/jest/react");
+const base = require("@datechain/config/jest/react");
+
+module.exports = {
+  ...base,
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
+};

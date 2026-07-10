@@ -1,0 +1,7 @@
+.actionBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--dc-space-4);
+  padding: var(--dc-space-4);
+}

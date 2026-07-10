@@ -23,3 +23,13 @@ export * from "./components/Toast/Toast";
 export * from "./components/Modal/Modal";
 export * from "./components/Tabs/Tabs";
 export * from "./components/Nav/Nav";
+
+export * from "./domain/Logo/Logo";
+export * from "./domain/SwipeCard/SwipeCard";
+export * from "./domain/ActionBar/ActionBar";
+export * from "./domain/MatchScreen/MatchScreen";
+export * from "./domain/PhotoPager/PhotoPager";
+export * from "./domain/ProfileDetails/ProfileDetails";
+export * from "./domain/Chat/ChatBubble";
+export * from "./domain/Chat/TypingIndicator";
+export * from "./domain/Chat/MatchListItem";

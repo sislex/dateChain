@@ -11,7 +11,7 @@
 | 0    | 0.3 | CI-пайплайн                               |   ✅   | 2026-07-10 | init   | GitHub Actions: install→lint→typecheck→test→build→format, кэш pnpm+turbo; вся последовательность зелёная локально                                                                                      |
 | 1    | 1.1 | Каркас UI-kit + Storybook                 |   ✅   | 2026-07-10 | init   | packages/ui: токены (light/dark), Storybook 8 + a11y/themes, демо-история токенов; build+test-storybook зелёные, CI-джоба добавлена                                                                    |
 | 1    | 1.2 | Базовые компоненты                        |   ✅   | 2026-07-10 | init   | 17 компонентов (Button/IconButton/Input/TextArea/Select/Switch/Checkbox/Slider/Avatar/Badge/Chip/Spinner/Skeleton/Toast/Modal+Sheet/Tabs/Bottom+SideNav), stories, a11y; 59 interaction-тестов зелёные |
-| 1    | 1.3 | Доменные UI-компоненты Tinder             |   ⬜   |            |        |                                                                                                                                                                                                        |
+| 1    | 1.3 | Доменные UI-компоненты Tinder             |   ✅   | 2026-07-10 | init   | Logo, SwipeCard (drag+метки+fly-off), ActionBar, MatchScreen, PhotoPager, ProfileDetails, ChatBubble/TypingIndicator/MatchListItem; Framer Motion, reduce-motion; 71 SB-тест + 7 unit зелёные          |
 | 2    | 2.1 | Каркас NestJS + БД                        |   ⬜   |            |        |                                                                                                                                                                                                        |
 | 2    | 2.2 | OpenAPI + генерация типов                 |   ⬜   |            |        |                                                                                                                                                                                                        |
 | 2    | 2.3 | Auth (OTP + JWT + RBAC)                   |   ⬜   |            |        |                                                                                                                                                                                                        |
@@ -57,3 +57,12 @@
   Toast (+провайдер/`useToast`), Modal (+ bottom-sheet вариант), Tabs, BottomNav/SideNav.
   Каждый — CSS-модуль с токенами, story (состояния/controls), a11y (роли, aria, focus-visible),
   play-тесты для интерактивных. Проверено: `test-storybook` — 59 тестов/18 сюит зелёные; build/lint/typecheck/format чистые.
+- **2026-07-10 — Шаг 1.3.** Доменные компоненты Tinder: Logo (пламя-SVG), SwipeCard (drag/поворот/
+  метки LIKE·NOPE·SUPER/fly-off/императивный `swipe()`), ActionBar (rewind/nope/super/like/boost),
+  MatchScreen («It's a Match!» с анимацией), PhotoPager (сегменты+тап-зоны), ProfileDetails,
+  ChatBubble/TypingIndicator/MatchListItem. Framer Motion + `useReducedMotion`; CSS-анимации с
+  `prefers-reduced-motion`. Решающая логика свайпа вынесена в чистую `resolveSwipeFromOffset` и
+  покрыта Jest (drag влево/вправо/вверх/порог). Итог: 71 interaction-тест (24 сюиты) + 7 unit —
+  зелёные; build/lint/typecheck/format чистые. **Фаза 1 (UI-kit) завершена.**
+  Замечание: полноценный drag-жест framer-motion не воспроизводится синтетическими событиями в
+  headless test-runner — направление свайпа проверяется unit-тестом чистой логики + interaction-тестами кнопок ActionBar.
