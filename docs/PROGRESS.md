@@ -17,7 +17,7 @@
 | 2    | 2.3 | Auth (OTP + JWT + RBAC)                   |   ✅   | 2026-07-11 | init   | OTP (Redis) + JWT access/refresh с ротацией и reuse-detection, RBAC (guard+@Roles), 2FA (TOTP) для админов; unit 94.6% покрытие auth, e2e: логин/refresh/reuse/401/403                                                       |
 | 3    | 3.1 | Profile + Media                           |   ✅   | 2026-07-11 | init   | Profile (upsert+18+, completion, гео-колонка), Photo + MediaService (sharp: full/thumb/blurhash на диск), upload/reorder/delete, отдача с проверкой владельца (403); 57 unit + 11 e2e зелёные                                |
 | 3    | 3.2 | Discovery (гео + фильтры)                 |   ✅   | 2026-07-11 | init   | DiscoveryService: PostGIS ST_DWithin (GiST), взаимные фильтры пол/возраст/радиус, исключение self/swiped/blocked; поля предпочтений в Profile, сущности Swipe/Block; e2e: гео/фильтры/исключения + EXPLAIN использует индекс |
-| 3    | 3.3 | Swipe + Match                             |   ⬜   |            |        |                                                                                                                                                                                                                              |
+| 3    | 3.3 | Swipe + Match                             |   ✅   | 2026-07-11 | init   | SwipeService (идемпотентно, дневной лимит→429), MatchService (canonical-пара, unique, unmatch), взаимный лайк→мэтч + событие MATCH_CREATED (EventEmitter), rewind за флагом; 71 unit + 18 e2e зелёные                        |
 | 3    | 3.4 | Chat + WebSocket                          |   ⬜   |            |        |                                                                                                                                                                                                                              |
 | 3    | 3.5 | Moderation + Notifications + Admin API    |   ⬜   |            |        |                                                                                                                                                                                                                              |
 | 3    | 3.6 | Сиды и демо-данные                        |   ⬜   |            |        |                                                                                                                                                                                                                              |
@@ -105,3 +105,10 @@
   дальний/не-тот-пол исключены, swiped/blocked исключены, `EXPLAIN` (при `enable_seqscan=off`) использует
   `idx_profiles_location`. 60 unit + 14 e2e зелёные. Замечание: отдача фото кандидатов (кросс-юзер доступ) —
   задел на match-based доступ в 3.3/3.4; сейчас raw-media остаётся owner-only.
+- **2026-07-11 — Шаг 3.3.** Swipe + Match. Сущность `Match` (канонич. пара `userAId<userBId`, unique-индекс,
+  CHECK-констрейнт, unmatch), миграция `Matches`. `SwipeService.swipe`: идемпотентность (unique actor+target),
+  дневной лимит лайков (`DAILY_LIKE_LIMIT`) → HTTP 429, детекция взаимного LIKE/SUPER_LIKE → `MatchService.createForPair`
+  - эмит доменного события `MATCH_CREATED` (`@nestjs/event-emitter`, слушатель — чат в 3.4). Rewind за флагом
+    `FEATURE_REWIND` (по умолчанию 403). Эндпоинты: `POST /swipes`, `POST /swipes/rewind`, `GET /matches`, `DELETE /matches/:id`.
+    Тесты: unit (self-swipe 400, no-reciprocal/reciprocal, идемпотентность, лимит 429, canonicalPair, unmatch-права) +
+    e2e: взаимный лайк→matched, self-swipe 400, rewind 403, unmatch убирает у обоих. 71 unit + 18 e2e зелёные.

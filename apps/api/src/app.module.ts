@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
+import { EventEmitterModule } from "@nestjs/event-emitter";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { AuthModule } from "./auth/auth.module";
@@ -9,6 +10,7 @@ import { validateEnv } from "./config/env.validation";
 import { buildDataSourceOptions } from "./database/typeorm.config";
 import { DiscoveryModule } from "./discovery/discovery.module";
 import { HealthModule } from "./health/health.module";
+import { MatchingModule } from "./matching/matching.module";
 import { ProfilesModule } from "./profiles/profiles.module";
 import { RedisModule } from "./redis/redis.module";
 import { UsersModule } from "./users/users.module";
@@ -21,6 +23,7 @@ import { UsersModule } from "./users/users.module";
       envFilePath: [".env", "../../.env"],
       validate: validateEnv,
     }),
+    EventEmitterModule.forRoot(),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
@@ -39,6 +42,7 @@ import { UsersModule } from "./users/users.module";
     AuthModule,
     ProfilesModule,
     DiscoveryModule,
+    MatchingModule,
     HealthModule,
   ],
   providers: [

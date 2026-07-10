@@ -73,6 +73,15 @@ export class EnvironmentVariables {
   @IsInt()
   @IsOptional()
   MEDIA_MAX_FILE_SIZE_MB = 10;
+
+  @Type(() => Number)
+  @IsInt()
+  @IsOptional()
+  DAILY_LIKE_LIMIT = 100;
+
+  @IsString()
+  @IsOptional()
+  FEATURE_REWIND = "false";
 }
 
 export function validateEnv(config: Record<string, unknown>): EnvironmentVariables {
