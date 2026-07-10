@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 
+import { OnboardingFlow } from "../features/onboarding/OnboardingFlow";
 import { PlaceholderPage } from "../pages/PlaceholderPage";
 import { WelcomePage } from "../pages/WelcomePage";
 
@@ -10,10 +11,7 @@ export function App() {
   return (
     <Routes>
       <Route path="/welcome" element={<WelcomePage />} />
-      <Route
-        path="/onboarding"
-        element={<PlaceholderPage title="Онбординг" subtitle="Регистрация появится в шаге 4.2" />}
-      />
+      <Route path="/onboarding" element={<OnboardingFlow />} />
       <Route
         path="/app"
         element={

@@ -113,3 +113,32 @@ jobs:
 
       - name: Run API e2e tests
         run: pnpm --filter @datechain/api test:e2e
+
+  user-web-e2e:
+    name: user-web e2e (Playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build UI kit (dependency of user-web)
+        run: pnpm --filter @datechain/ui build
+
+      - name: Install Playwright (chromium)
+        run: pnpm --filter @datechain/user-web exec playwright install --with-deps chromium
+
+      - name: Run user-web e2e
+        run: pnpm --filter @datechain/user-web e2e
