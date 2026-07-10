@@ -1,0 +1,9 @@
+{
+  "extends": "@datechain/config/tsconfig/react.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": ["node", "jest", "@testing-library/jest-dom"]
+  },
+  "include": ["src", ".storybook"]
+}

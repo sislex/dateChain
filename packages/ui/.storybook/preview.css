@@ -1,0 +1,8 @@
+/* Apply theme tokens to the Storybook canvas so stories render on the right surface. */
+body {
+  margin: 0;
+  font-family: var(--dc-font-family);
+  background: var(--dc-color-bg);
+  color: var(--dc-color-text);
+  transition: background var(--dc-duration-base) var(--dc-ease-standard);
+}
