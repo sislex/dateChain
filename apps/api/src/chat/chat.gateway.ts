@@ -16,6 +16,10 @@ import { Server, Socket } from "socket.io";
 
 import { MATCH_CREATED, type MatchCreatedEvent } from "../matching/events";
 import { MatchService } from "../matching/match.service";
+import {
+  NOTIFICATION_CREATED,
+  type NotificationCreatedEvent,
+} from "../notifications/notification.entity";
 import { REDIS_CLIENT } from "../redis/redis.module";
 
 import { ChatService } from "./chat.service";
@@ -146,5 +150,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   broadcastMatch(event: MatchCreatedEvent): void {
     this.server.to(`user:${event.userAId}`).emit("match:new", event);
     this.server.to(`user:${event.userBId}`).emit("match:new", event);
+  }
+
+  @OnEvent(NOTIFICATION_CREATED)
+  broadcastNotification(event: NotificationCreatedEvent): void {
+    this.server.to(`user:${event.userId}`).emit("notification:new", event.notification);
   }
 }

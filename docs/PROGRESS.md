@@ -19,7 +19,7 @@
 | 3    | 3.2 | Discovery (гео + фильтры)                 |   ✅   | 2026-07-11 | init   | DiscoveryService: PostGIS ST_DWithin (GiST), взаимные фильтры пол/возраст/радиус, исключение self/swiped/blocked; поля предпочтений в Profile, сущности Swipe/Block; e2e: гео/фильтры/исключения + EXPLAIN использует индекс                           |
 | 3    | 3.3 | Swipe + Match                             |   ✅   | 2026-07-11 | init   | SwipeService (идемпотентно, дневной лимит→429), MatchService (canonical-пара, unique, unmatch), взаимный лайк→мэтч + событие MATCH_CREATED (EventEmitter), rewind за флагом; 71 unit + 18 e2e зелёные                                                  |
 | 3    | 3.4 | Chat + WebSocket                          |   ✅   | 2026-07-11 | init   | Message-сущность, ChatService (треды, пагинация, read-статусы), Socket.IO gateway (JWT-auth сокета, комнаты по мэтчу, typing, presence, слушатель MATCH_CREATED), Redis-adapter; real-time e2e (2 клиента): доставка/typing/presence/401/403/пагинация |
-| 3    | 3.5 | Moderation + Notifications + Admin API    |   ⬜   |            |        |                                                                                                                                                                                                                                                        |
+| 3    | 3.5 | Moderation + Notifications + Admin API    |   ✅   | 2026-07-11 | init   | Жалобы (авто-приоритет, очередь), блокировки (unmatch), уведомления (слушатели MATCH/MESSAGE→notification:new), Admin API (users/metrics/settings/impersonate) с аудит-логом, RBAC по ролям; 84 unit + 30 e2e (7 суит) зелёные                         |
 | 3    | 3.6 | Сиды и демо-данные                        |   ⬜   |            |        |                                                                                                                                                                                                                                                        |
 | 4    | 4.1 | Каркас user-web                           |   ⬜   |            |        |                                                                                                                                                                                                                                                        |
 | 4    | 4.2 | Авторизация и онбординг                   |   ⬜   |            |        |                                                                                                                                                                                                                                                        |
@@ -122,3 +122,13 @@
   доставка сообщения, typing, presence set/clear, отказ без токена, запрет чужой комнаты (403), пагинация+read.
   Правки надёжности: обработчик `error` на ioredis-клиенте, guard в `handleDisconnect` и `onModuleDestroy.quit`
   (иначе uncaught «Connection is closed» при shutdown). 76 unit + 24 e2e (6 суит) зелёные.
+- **2026-07-11 — Шаг 3.5.** Moderation + Notifications + Admin. **Moderation:** `Report` (категории/статусы,
+  авто-приоритет `computeReportPriority`), `ReportService` (создание→очередь по priority/дате, resolve),
+  `BlockService` (блок + unmatch пары), контроллер `/reports`, `/blocks`. **Notifications:** `Notification`
+  (тип/payload/readAt), `NotificationService` (+ эмит `NOTIFICATION_CREATED`), `NotificationListeners`
+  (`@OnEvent` MATCH_CREATED→оба, MESSAGE_CREATED→получатель), gateway шлёт `notification:new` в user-комнату,
+  контроллер `/notifications`. **Admin:** `AuditLog`+`Setting`, `AdminService` (users list/get, метрики-агрегаты,
+  setStatus с revoke+аудит, impersonate, resolveReport+ban, settings) + аудит каждого действия; контроллер
+  `/admin/*` с `@Roles` (metrics→Analyst, users→Support, status→Moderator, impersonate→SuperAdmin, audit/settings→Admin).
+  Миграция `ModerationAdmin`. Тесты: unit (priority, block-unmatch, метрики-агрегатор, ban→revoke+аудит) +
+  e2e: жалоба→очередь, блок→чат пуст, ban→аудит, метрики, RBAC moderator→403 (audit/impersonate), superadmin impersonate. 84 unit + 30 e2e (7 суит).

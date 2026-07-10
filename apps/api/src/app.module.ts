@@ -4,6 +4,7 @@ import { APP_GUARD } from "@nestjs/core";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
+import { AdminModule } from "./admin/admin.module";
 import { AuthModule } from "./auth/auth.module";
 import { JwtAuthGuard, RolesGuard } from "./auth/guards";
 import { ChatModule } from "./chat/chat.module";
@@ -12,6 +13,8 @@ import { buildDataSourceOptions } from "./database/typeorm.config";
 import { DiscoveryModule } from "./discovery/discovery.module";
 import { HealthModule } from "./health/health.module";
 import { MatchingModule } from "./matching/matching.module";
+import { ModerationModule } from "./moderation/moderation.module";
+import { NotificationsModule } from "./notifications/notifications.module";
 import { ProfilesModule } from "./profiles/profiles.module";
 import { RedisModule } from "./redis/redis.module";
 import { UsersModule } from "./users/users.module";
@@ -45,6 +48,9 @@ import { UsersModule } from "./users/users.module";
     DiscoveryModule,
     MatchingModule,
     ChatModule,
+    ModerationModule,
+    NotificationsModule,
+    AdminModule,
     HealthModule,
   ],
   providers: [
