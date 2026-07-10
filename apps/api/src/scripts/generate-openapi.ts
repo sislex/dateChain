@@ -22,6 +22,8 @@ function ensureEnv(): void {
     POSTGRES_DB: "datechain",
     REDIS_HOST: "localhost",
     REDIS_PORT: "6379",
+    JWT_ACCESS_SECRET: "dev-access",
+    JWT_REFRESH_SECRET: "dev-refresh",
   };
   for (const [key, value] of Object.entries(defaults)) {
     process.env[key] ??= value;

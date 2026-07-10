@@ -1,11 +1,15 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
+import { APP_GUARD } from "@nestjs/core";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
+import { AuthModule } from "./auth/auth.module";
+import { JwtAuthGuard, RolesGuard } from "./auth/guards";
 import { validateEnv } from "./config/env.validation";
 import { buildDataSourceOptions } from "./database/typeorm.config";
 import { HealthModule } from "./health/health.module";
 import { RedisModule } from "./redis/redis.module";
+import { UsersModule } from "./users/users.module";
 
 @Module({
   imports: [
@@ -29,7 +33,15 @@ import { RedisModule } from "./redis/redis.module";
       }),
     }),
     RedisModule,
+    UsersModule,
+    AuthModule,
     HealthModule,
+  ],
+  providers: [
+    // Global auth: every route requires a valid JWT unless marked @Public(),
+    // then role requirements from @Roles() are enforced.
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
   ],
 })
 export class AppModule {}

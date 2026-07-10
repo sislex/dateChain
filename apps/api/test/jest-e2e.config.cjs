@@ -7,6 +7,11 @@ module.exports = {
   transform: {
     "^.+\\.ts$": ["ts-jest", { tsconfig: "tsconfig.json" }],
   },
+  moduleNameMapper: {
+    // Resolve the workspace types package to TS source (ts-jest transforms it)
+    // instead of the ESM dist build, which CommonJS jest cannot require.
+    "^@datechain/types$": "<rootDir>/../../packages/types/src/index.ts",
+  },
   testTimeout: 180000,
   // Testcontainers keeps a docker socket handle open; close the app + stop
   // containers in afterAll, then force-exit so the runner terminates promptly.

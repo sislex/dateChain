@@ -1,5 +1,5 @@
-import { DocumentBuilder, SwaggerModule, type OpenAPIObject } from "@nestjs/swagger";
 import type { INestApplication } from "@nestjs/common";
+import { DocumentBuilder, SwaggerModule, type OpenAPIObject } from "@nestjs/swagger";
 
 /** OpenAPI document definition, shared by the running server and the generator. */
 export function buildOpenApiDocument(app: INestApplication): OpenAPIObject {

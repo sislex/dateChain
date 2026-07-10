@@ -10,6 +10,8 @@ const validEnv = {
   POSTGRES_DB: "datechain",
   REDIS_HOST: "localhost",
   REDIS_PORT: "6379",
+  JWT_ACCESS_SECRET: "test-access",
+  JWT_REFRESH_SECRET: "test-refresh",
 };
 
 describe("validateEnv", () => {

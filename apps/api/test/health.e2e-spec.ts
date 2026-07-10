@@ -1,9 +1,9 @@
-import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import { INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
+import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
+import request from "supertest";
 import { GenericContainer, type StartedTestContainer } from "testcontainers";
 import { DataSource } from "typeorm";
-import request from "supertest";
 
 import { buildDataSourceOptions } from "../src/database/typeorm.config";
 
@@ -28,6 +28,8 @@ describe("Infrastructure (e2e)", () => {
     process.env.POSTGRES_DB = pg.getDatabase();
     process.env.REDIS_HOST = redis.getHost();
     process.env.REDIS_PORT = String(redis.getMappedPort(6379));
+    process.env.JWT_ACCESS_SECRET = "test-access-secret";
+    process.env.JWT_REFRESH_SECRET = "test-refresh-secret";
   }, 180000);
 
   afterAll(async () => {
@@ -49,12 +51,16 @@ describe("Infrastructure (e2e)", () => {
     await ds.initialize();
 
     await ds.runMigrations();
-    const afterUp = await ds.query(`SELECT to_regclass('public._schema_baseline') AS t`);
-    expect(afterUp[0].t).toBe("_schema_baseline");
+    const afterUp = await ds.query(`SELECT to_regclass('public.users') AS t`);
+    expect(afterUp[0].t).toBe("users");
 
+    // Revert the last migration (AuthTables) and confirm its table is gone.
     await ds.undoLastMigration();
-    const afterDown = await ds.query(`SELECT to_regclass('public._schema_baseline') AS t`);
+    const afterDown = await ds.query(`SELECT to_regclass('public.users') AS t`);
     expect(afterDown[0].t).toBeNull();
+    // The earlier baseline migration is still applied.
+    const baseline = await ds.query(`SELECT to_regclass('public._schema_baseline') AS t`);
+    expect(baseline[0].t).toBe("_schema_baseline");
 
     await ds.destroy();
   });

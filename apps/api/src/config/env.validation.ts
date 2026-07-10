@@ -45,6 +45,25 @@ export class EnvironmentVariables {
   @Type(() => Number)
   @IsInt()
   REDIS_PORT!: number;
+
+  @IsString()
+  JWT_ACCESS_SECRET!: string;
+
+  @IsString()
+  JWT_REFRESH_SECRET!: string;
+
+  @IsString()
+  @IsOptional()
+  JWT_ACCESS_TTL = "15m";
+
+  @IsString()
+  @IsOptional()
+  JWT_REFRESH_TTL = "30d";
+
+  @Type(() => Number)
+  @IsInt()
+  @IsOptional()
+  OTP_TTL_SECONDS = 300;
 }
 
 export function validateEnv(config: Record<string, unknown>): EnvironmentVariables {
