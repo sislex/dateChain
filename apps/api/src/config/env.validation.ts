@@ -1,0 +1,59 @@
+import "reflect-metadata";
+
+import { Type, plainToInstance } from "class-transformer";
+import { IsEnum, IsInt, IsOptional, IsString, validateSync } from "class-validator";
+
+export enum NodeEnv {
+  Development = "development",
+  Test = "test",
+  Production = "production",
+}
+
+/**
+ * Typed, validated environment. Fails fast at boot if a required var is missing
+ * or malformed, so misconfiguration never reaches runtime silently.
+ */
+export class EnvironmentVariables {
+  @IsEnum(NodeEnv)
+  @IsOptional()
+  NODE_ENV: NodeEnv = NodeEnv.Development;
+
+  @Type(() => Number)
+  @IsInt()
+  @IsOptional()
+  API_PORT = 3000;
+
+  @IsString()
+  POSTGRES_HOST!: string;
+
+  @Type(() => Number)
+  @IsInt()
+  POSTGRES_PORT!: number;
+
+  @IsString()
+  POSTGRES_USER!: string;
+
+  @IsString()
+  POSTGRES_PASSWORD!: string;
+
+  @IsString()
+  POSTGRES_DB!: string;
+
+  @IsString()
+  REDIS_HOST!: string;
+
+  @Type(() => Number)
+  @IsInt()
+  REDIS_PORT!: number;
+}
+
+export function validateEnv(config: Record<string, unknown>): EnvironmentVariables {
+  const validated = plainToInstance(EnvironmentVariables, config, {
+    enableImplicitConversion: true,
+  });
+  const errors = validateSync(validated, { skipMissingProperties: false });
+  if (errors.length > 0) {
+    throw new Error(`Invalid environment configuration:\n${errors.toString()}`);
+  }
+  return validated;
+}

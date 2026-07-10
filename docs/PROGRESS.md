@@ -12,7 +12,7 @@
 | 1    | 1.1 | Каркас UI-kit + Storybook                 |   ✅   | 2026-07-10 | init   | packages/ui: токены (light/dark), Storybook 8 + a11y/themes, демо-история токенов; build+test-storybook зелёные, CI-джоба добавлена                                                                    |
 | 1    | 1.2 | Базовые компоненты                        |   ✅   | 2026-07-10 | init   | 17 компонентов (Button/IconButton/Input/TextArea/Select/Switch/Checkbox/Slider/Avatar/Badge/Chip/Spinner/Skeleton/Toast/Modal+Sheet/Tabs/Bottom+SideNav), stories, a11y; 59 interaction-тестов зелёные |
 | 1    | 1.3 | Доменные UI-компоненты Tinder             |   ✅   | 2026-07-10 | init   | Logo, SwipeCard (drag+метки+fly-off), ActionBar, MatchScreen, PhotoPager, ProfileDetails, ChatBubble/TypingIndicator/MatchListItem; Framer Motion, reduce-motion; 71 SB-тест + 7 unit зелёные          |
-| 2    | 2.1 | Каркас NestJS + БД                        |   ⬜   |            |        |                                                                                                                                                                                                        |
+| 2    | 2.1 | Каркас NestJS + БД                        |   ✅   | 2026-07-10 | init   | NestJS 10 + TypeORM + Redis, ConfigModule с валидацией env, health-check (db+redis), первая миграция (up/down), Testcontainers e2e; unit+e2e зелёные, CI-джоба api-e2e                                 |
 | 2    | 2.2 | OpenAPI + генерация типов                 |   ⬜   |            |        |                                                                                                                                                                                                        |
 | 2    | 2.3 | Auth (OTP + JWT + RBAC)                   |   ⬜   |            |        |                                                                                                                                                                                                        |
 | 3    | 3.1 | Profile + Media                           |   ⬜   |            |        |                                                                                                                                                                                                        |
@@ -66,3 +66,10 @@
   зелёные; build/lint/typecheck/format чистые. **Фаза 1 (UI-kit) завершена.**
   Замечание: полноценный drag-жест framer-motion не воспроизводится синтетическими событиями в
   headless test-runner — направление свайпа проверяется unit-тестом чистой логики + interaction-тестами кнопок ActionBar.
+- **2026-07-10 — Шаг 2.1.** Каркас `apps/api` (NestJS 10): ConfigModule с типизированной валидацией env
+  (class-validator, `@Type(() => Number)`), TypeORM (`synchronize:false`, общий `buildDataSourceOptions`
+  для рантайма и CLI), Redis-модуль (ioredis, graceful-close через `OnModuleDestroy`), health-check
+  (`@nestjs/terminus`: db ping + redis), первая миграция `InitialBaseline` (extensions + marker-таблица,
+  up/down). Тесты: unit (валидация env) + e2e на Testcontainers (postgis+redis): миграция up/down и
+  `GET /health` → 200. Проверено: unit + e2e (EXIT=0, forceExit) зелёные; build/lint/typecheck/format чистые.
+  Добавлена CI-джоба `api-e2e`. Замечание: e2e требует Docker; `forceExit` — из-за docker-socket хендла Testcontainers.

@@ -1,0 +1,10 @@
+{
+  "extends": "@datechain/config/tsconfig/node.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "baseUrl": ".",
+    "types": ["node", "jest"],
+    "noUncheckedIndexedAccess": false
+  },
+  "include": ["src", "test"]
+}
