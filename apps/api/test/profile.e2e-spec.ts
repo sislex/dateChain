@@ -54,6 +54,7 @@ describe("Profile & Media (e2e)", () => {
     await ds.destroy();
 
     redis = new Redis({ host: process.env.REDIS_HOST, port: Number(process.env.REDIS_PORT) });
+    redis.on("error", () => undefined);
 
     const { AppModule } = await import("../src/app.module");
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();

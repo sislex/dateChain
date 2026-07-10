@@ -1,4 +1,4 @@
-import { Global, Inject, Injectable, Module, type OnModuleDestroy } from "@nestjs/common";
+import { Global, Inject, Injectable, Logger, Module, type OnModuleDestroy } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import Redis from "ioredis";
 
@@ -14,7 +14,12 @@ export class RedisLifecycle implements OnModuleDestroy {
   constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) {}
 
   async onModuleDestroy(): Promise<void> {
-    await this.redis.quit();
+    // Quit may reject if the connection already dropped during shutdown.
+    try {
+      await this.redis.quit();
+    } catch {
+      this.redis.disconnect();
+    }
   }
 }
 
@@ -25,12 +30,17 @@ export class RedisLifecycle implements OnModuleDestroy {
       provide: REDIS_CLIENT,
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        return new Redis({
+        const logger = new Logger("Redis");
+        const client = new Redis({
           host: config.getOrThrow<string>("REDIS_HOST"),
           port: config.getOrThrow<number>("REDIS_PORT"),
           maxRetriesPerRequest: null,
           lazyConnect: false,
         });
+        // Without an 'error' listener ioredis rethrows connection errors as
+        // uncaught exceptions (e.g. during shutdown); log and swallow instead.
+        client.on("error", (err: Error) => logger.warn(`Redis error: ${err.message}`));
+        return client;
       },
     },
     RedisLifecycle,

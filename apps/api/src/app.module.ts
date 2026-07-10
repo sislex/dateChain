@@ -6,6 +6,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { AuthModule } from "./auth/auth.module";
 import { JwtAuthGuard, RolesGuard } from "./auth/guards";
+import { ChatModule } from "./chat/chat.module";
 import { validateEnv } from "./config/env.validation";
 import { buildDataSourceOptions } from "./database/typeorm.config";
 import { DiscoveryModule } from "./discovery/discovery.module";
@@ -43,6 +44,7 @@ import { UsersModule } from "./users/users.module";
     ProfilesModule,
     DiscoveryModule,
     MatchingModule,
+    ChatModule,
     HealthModule,
   ],
   providers: [
