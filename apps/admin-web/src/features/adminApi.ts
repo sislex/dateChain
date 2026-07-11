@@ -73,6 +73,15 @@ export const adminApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Users", "Metrics"],
     }),
+    impersonate: build.mutation<
+      {
+        user: { id: string; role: UserRole };
+        tokens: { accessToken: string; refreshToken: string };
+      },
+      string
+    >({
+      query: (id) => ({ url: `/admin/users/${id}/impersonate`, method: "POST" }),
+    }),
     reports: build.query<ReportRow[], void>({
       query: () => "/admin/reports",
       providesTags: ["Reports"],
@@ -97,6 +106,7 @@ export const {
   useMetricsQuery,
   useListUsersQuery,
   useSetUserStatusMutation,
+  useImpersonateMutation,
   useReportsQuery,
   useResolveReportMutation,
   useAuditQuery,

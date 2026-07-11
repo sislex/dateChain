@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 import { DashboardPage } from "../features/DashboardPage";
 import { LoginPage } from "../features/LoginPage";
+import { UsersPage } from "../features/UsersPage";
 
 import { AdminLayout } from "./AdminLayout";
 import { RoleGuard } from "./RoleGuard";
@@ -28,7 +29,7 @@ export function App() {
           path="users"
           element={
             <RoleGuard min={UserRole.Support}>
-              <Stub title="Пользователи" />
+              <UsersPage />
             </RoleGuard>
           }
         />
