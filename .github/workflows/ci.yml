@@ -142,3 +142,6 @@ jobs:
 
       - name: Run user-web e2e
         run: pnpm --filter @datechain/user-web e2e
+
+      - name: Run admin-web e2e
+        run: pnpm --filter @datechain/admin-web e2e

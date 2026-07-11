@@ -1,0 +1,103 @@
+import type { UserRole } from "@datechain/types";
+
+import type { AdminUser } from "../store/authSlice";
+import { baseApi } from "../store/baseApi";
+
+export interface AdminMetrics {
+  totalUsers: number;
+  bannedUsers: number;
+  totalMatches: number;
+  totalMessages: number;
+  totalSwipes: number;
+  openReports: number;
+}
+
+export interface AdminUserRow {
+  id: string;
+  email: string | null;
+  phone: string | null;
+  role: UserRole;
+  status: string;
+  createdAt: string;
+}
+
+export interface ReportRow {
+  id: string;
+  reporterId: string;
+  reportedId: string;
+  category: string;
+  reason: string | null;
+  status: string;
+  priority: number;
+  createdAt: string;
+}
+
+export interface AuditRow {
+  id: string;
+  actorId: string;
+  action: string;
+  targetType: string | null;
+  targetId: string | null;
+  createdAt: string;
+}
+
+export const adminApi = baseApi.injectEndpoints({
+  endpoints: (build) => ({
+    adminLogin: build.mutation<
+      { user: AdminUser; tokens: { accessToken: string; refreshToken: string } },
+      { email: string; password: string; totp?: string }
+    >({
+      query: (body) => ({ url: "/auth/admin/login", method: "POST", body }),
+    }),
+    metrics: build.query<AdminMetrics, void>({
+      query: () => "/admin/metrics",
+      providesTags: ["Metrics"],
+    }),
+    listUsers: build.query<
+      { items: AdminUserRow[]; total: number },
+      { q?: string; status?: string }
+    >({
+      query: ({ q, status }) => {
+        const params = new URLSearchParams();
+        if (q) params.set("q", q);
+        if (status) params.set("status", status);
+        return `/admin/users?${params.toString()}`;
+      },
+      providesTags: ["Users"],
+    }),
+    setUserStatus: build.mutation<AdminUserRow, { id: string; status: string }>({
+      query: ({ id, status }) => ({
+        url: `/admin/users/${id}/status`,
+        method: "POST",
+        body: { status },
+      }),
+      invalidatesTags: ["Users", "Metrics"],
+    }),
+    reports: build.query<ReportRow[], void>({
+      query: () => "/admin/reports",
+      providesTags: ["Reports"],
+    }),
+    resolveReport: build.mutation<ReportRow, { id: string; status: string; ban?: boolean }>({
+      query: ({ id, status, ban }) => ({
+        url: `/admin/reports/${id}/resolve`,
+        method: "POST",
+        body: { status, ban },
+      }),
+      invalidatesTags: ["Reports", "Users"],
+    }),
+    audit: build.query<AuditRow[], void>({
+      query: () => "/admin/audit",
+      providesTags: ["Audit"],
+    }),
+  }),
+});
+
+export const {
+  useAdminLoginMutation,
+  useMetricsQuery,
+  useListUsersQuery,
+  useSetUserStatusMutation,
+  useReportsQuery,
+  useResolveReportMutation,
+  useAuditQuery,
+} = adminApi;

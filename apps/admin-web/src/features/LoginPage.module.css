@@ -1,0 +1,34 @@
+.screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  background: var(--dc-color-bg);
+  padding: var(--dc-space-4);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dc-space-4);
+  width: 100%;
+  max-width: 380px;
+  padding: var(--dc-space-8) var(--dc-space-6);
+  border: 1px solid var(--dc-color-border);
+  border-radius: var(--dc-radius-lg);
+  background: var(--dc-color-surface);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--dc-space-2);
+  justify-content: center;
+  margin-bottom: var(--dc-space-2);
+}
+
+.brandName {
+  font-family: var(--dc-font-family);
+  font-weight: var(--dc-font-weight-bold);
+  font-size: var(--dc-font-size-lg);
+}
