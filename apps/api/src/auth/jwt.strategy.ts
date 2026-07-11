@@ -10,7 +10,12 @@ import type { AccessTokenPayload } from "./token.service";
 export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
   constructor(config: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      // Bearer header is the primary source. The query param fallback lets
+      // <img>/<a> tags authenticate for media, which cannot set headers.
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        ExtractJwt.fromUrlQueryParameter("access_token"),
+      ]),
       ignoreExpiration: false,
       secretOrKey: config.getOrThrow<string>("JWT_ACCESS_SECRET"),
     });

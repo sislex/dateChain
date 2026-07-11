@@ -33,6 +33,11 @@ export class OtpService {
   /** Verifies the code and consumes it on success (single-use). */
   async verify(channel: ContactChannel, identifier: string, code: string): Promise<boolean> {
     const key = this.key(channel, identifier);
+    // DEV bypass: accept any code (phone-only login for local testing).
+    if (this.config.get<string>("AUTH_DEV_LOGIN") === "true") {
+      await this.redis.del(key);
+      return true;
+    }
     const stored = await this.redis.get(key);
     if (!stored || stored !== code) return false;
     await this.redis.del(key);

@@ -16,7 +16,8 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "gen:openapi": "pnpm --filter @datechain/api openapi:generate",
     "gen:types": "pnpm gen:openapi && pnpm --filter @datechain/api-client gen:types",
-    "seed": "pnpm --filter @datechain/api seed"
+    "seed": "pnpm --filter @datechain/api seed",
+    "reset": "pnpm --filter @datechain/api reset"
   },
   "devDependencies": {
     "@datechain/config": "workspace:*",

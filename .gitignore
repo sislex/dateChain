@@ -32,3 +32,6 @@ Thumbs.db
 # test artifacts
 playwright-report/
 test-results/
+
+# local test-account credentials (contain live tokens) — not for VCS
+тестовые пользователи/

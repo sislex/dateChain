@@ -14,7 +14,9 @@
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/database/data-source.ts",
     "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/database/data-source.ts",
     "openapi:generate": "ts-node src/scripts/generate-openapi.ts",
-    "seed": "ts-node src/scripts/seed.ts"
+    "seed": "ts-node src/scripts/seed.ts",
+    "reset": "ts-node src/scripts/reset.ts",
+    "photos:candidates": "ts-node src/scripts/set-candidate-photos.ts"
   },
   "dependencies": {
     "@datechain/types": "workspace:*",

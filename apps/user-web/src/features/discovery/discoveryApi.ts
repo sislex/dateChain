@@ -41,7 +41,23 @@ export const discoveryApi = baseApi.injectEndpoints({
 
 export const { useGetDeckQuery, useSwipeMutation } = discoveryApi;
 
-/** Media URL for a candidate photo (served by the API with access checks). */
+/** Current access token, read from the persisted auth state (mirrors the store). */
+function currentAccessToken(): string | null {
+  try {
+    const raw = typeof localStorage !== "undefined" ? localStorage.getItem("datechain.auth") : null;
+    return raw ? (JSON.parse(raw) as { accessToken: string | null }).accessToken : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Media URL for a photo (served by the API with access checks). The access
+ * token is passed as a query param because <img> tags cannot set an
+ * Authorization header; the JWT strategy accepts `access_token` as a fallback.
+ */
 export function photoUrl(photoId: string, variant: "full" | "thumb" = "full"): string {
-  return `/api/media/photo/${photoId}${variant === "thumb" ? "/thumb" : ""}`;
+  const path = `/api/media/photo/${photoId}${variant === "thumb" ? "/thumb" : ""}`;
+  const token = currentAccessToken();
+  return token ? `${path}?access_token=${encodeURIComponent(token)}` : path;
 }

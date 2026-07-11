@@ -13,6 +13,9 @@ import { ageOf, profileSchema } from "./schema";
 
 type Step = "phone" | "otp" | "profile";
 
+// DEV: log in with phone only (no OTP code). Backend must run with AUTH_DEV_LOGIN=true.
+const DEV_LOGIN = import.meta.env.VITE_DEV_LOGIN === "true";
+
 const GENDER_LABELS: Record<Gender, string> = {
   [Gender.Man]: "Мужчина",
   [Gender.Woman]: "Женщина",
@@ -40,11 +43,33 @@ export function OnboardingFlow() {
   async function onRequestOtp() {
     setError(null);
     if (phone.trim().length < 5) return setError("Введите телефон");
+    if (DEV_LOGIN) return devLogin();
     try {
       await requestOtp({ channel: "phone", identifier: phone.trim() }).unwrap();
       setStep("otp");
     } catch {
       setError("Не удалось отправить код");
+    }
+  }
+
+  // DEV: phone-only login — verify with a placeholder code (backend bypasses it),
+  // then go straight to the app if a profile already exists, else onboard.
+  async function devLogin() {
+    setError(null);
+    try {
+      const result = await verifyOtp({
+        channel: "phone",
+        identifier: phone.trim(),
+        code: "000000",
+      }).unwrap();
+      dispatch(setCredentials({ ...result.tokens, user: result.user }));
+      const hasProfile = await fetch("/api/profile/me", {
+        headers: { Authorization: `Bearer ${result.tokens.accessToken}` },
+      }).then((r) => r.ok);
+      navigate(hasProfile ? "/app/discovery" : "/onboarding", { replace: true });
+      if (!hasProfile) setStep("profile");
+    } catch {
+      setError("Не удалось войти");
     }
   }
 
@@ -98,7 +123,7 @@ export function OnboardingFlow() {
             error={error ?? undefined}
           />
           <Button fullWidth size="lg" disabled={requesting} onClick={onRequestOtp}>
-            Получить код
+            {DEV_LOGIN ? "Войти" : "Получить код"}
           </Button>
         </div>
       )}

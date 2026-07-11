@@ -83,6 +83,11 @@ export class EnvironmentVariables {
   @IsOptional()
   FEATURE_REWIND = "false";
 
+  /** DEV ONLY: when "true", OTP verification accepts any code (phone-only login). */
+  @IsString()
+  @IsOptional()
+  AUTH_DEV_LOGIN = "false";
+
   @Type(() => Number)
   @IsInt()
   @IsOptional()

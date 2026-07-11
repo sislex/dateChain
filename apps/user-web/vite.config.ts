@@ -7,7 +7,12 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      "/api": { target: "http://localhost:3000", changeOrigin: true },
+      // Backend routes live at the root (/auth, /health, …); strip the /api prefix.
+      "/api": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
       "/socket.io": { target: "http://localhost:3000", ws: true },
     },
   },
