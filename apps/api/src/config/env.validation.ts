@@ -82,6 +82,16 @@ export class EnvironmentVariables {
   @IsString()
   @IsOptional()
   FEATURE_REWIND = "false";
+
+  @Type(() => Number)
+  @IsInt()
+  @IsOptional()
+  THROTTLE_TTL_SECONDS = 60;
+
+  @Type(() => Number)
+  @IsInt()
+  @IsOptional()
+  THROTTLE_LIMIT = 200;
 }
 
 export function validateEnv(config: Record<string, unknown>): EnvironmentVariables {

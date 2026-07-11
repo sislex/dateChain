@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
 import { EventEmitterModule } from "@nestjs/event-emitter";
+import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { AdminModule } from "./admin/admin.module";
@@ -28,6 +29,15 @@ import { UsersModule } from "./users/users.module";
       validate: validateEnv,
     }),
     EventEmitterModule.forRoot(),
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => [
+        {
+          ttl: config.get<number>("THROTTLE_TTL_SECONDS", 60) * 1000,
+          limit: config.get<number>("THROTTLE_LIMIT", 200),
+        },
+      ],
+    }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
@@ -54,8 +64,8 @@ import { UsersModule } from "./users/users.module";
     HealthModule,
   ],
   providers: [
-    // Global auth: every route requires a valid JWT unless marked @Public(),
-    // then role requirements from @Roles() are enforced.
+    // Rate limiting first, then auth (JWT unless @Public), then role checks.
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
