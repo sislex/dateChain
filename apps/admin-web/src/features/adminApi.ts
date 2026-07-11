@@ -98,6 +98,18 @@ export const adminApi = baseApi.injectEndpoints({
       query: () => "/admin/audit",
       providesTags: ["Audit"],
     }),
+    getSettings: build.query<Array<{ key: string; value: unknown }>, void>({
+      query: () => "/admin/settings",
+      providesTags: ["Settings"],
+    }),
+    setSetting: build.mutation<{ key: string; value: unknown }, { key: string; value: unknown }>({
+      query: ({ key, value }) => ({
+        url: `/admin/settings/${key}`,
+        method: "PUT",
+        body: { value },
+      }),
+      invalidatesTags: ["Settings"],
+    }),
   }),
 });
 
@@ -110,4 +122,6 @@ export const {
   useReportsQuery,
   useResolveReportMutation,
   useAuditQuery,
+  useGetSettingsQuery,
+  useSetSettingMutation,
 } = adminApi;

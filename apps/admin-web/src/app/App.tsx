@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 import { DashboardPage } from "../features/DashboardPage";
 import { LoginPage } from "../features/LoginPage";
+import { ModerationPage } from "../features/ModerationPage";
 import { UsersPage } from "../features/UsersPage";
 
 import { AdminLayout } from "./AdminLayout";
@@ -37,7 +38,7 @@ export function App() {
           path="moderation"
           element={
             <RoleGuard min={UserRole.Moderator}>
-              <Stub title="Модерация" />
+              <ModerationPage />
             </RoleGuard>
           }
         />

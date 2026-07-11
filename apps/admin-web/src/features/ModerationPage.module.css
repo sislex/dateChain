@@ -1,0 +1,55 @@
+.title {
+  font-size: var(--dc-font-size-2xl);
+  font-weight: var(--dc-font-weight-bold);
+  margin: 0 0 var(--dc-space-4);
+}
+
+.h2 {
+  font-size: var(--dc-font-size-lg);
+  font-weight: var(--dc-font-weight-bold);
+  margin: 0 0 var(--dc-space-3);
+}
+
+.muted {
+  color: var(--dc-color-text-secondary);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--dc-font-size-sm);
+}
+.table th,
+.table td {
+  text-align: left;
+  padding: var(--dc-space-3);
+  border-bottom: 1px solid var(--dc-color-border);
+}
+.table th {
+  color: var(--dc-color-text-secondary);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--dc-space-2);
+}
+
+.section {
+  margin-top: var(--dc-space-8);
+  padding-top: var(--dc-space-6);
+  border-top: 1px solid var(--dc-color-border);
+}
+
+.settingsList {
+  font-size: var(--dc-font-size-sm);
+  color: var(--dc-color-text-secondary);
+  padding-left: var(--dc-space-4);
+}
+
+.settingForm {
+  display: flex;
+  gap: var(--dc-space-2);
+  align-items: center;
+  max-width: 520px;
+}
