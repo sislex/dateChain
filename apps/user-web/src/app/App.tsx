@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 
+import { DiscoveryPage } from "../features/discovery/DiscoveryPage";
 import { OnboardingFlow } from "../features/onboarding/OnboardingFlow";
 import { PlaceholderPage } from "../pages/PlaceholderPage";
 import { WelcomePage } from "../pages/WelcomePage";
@@ -21,10 +22,7 @@ export function App() {
         }
       >
         <Route index element={<Navigate to="discovery" replace />} />
-        <Route
-          path="discovery"
-          element={<PlaceholderPage title="Discovery" subtitle="Колода — шаг 4.3" />}
-        />
+        <Route path="discovery" element={<DiscoveryPage />} />
         <Route path="likes" element={<PlaceholderPage title="Лайки" />} />
         <Route
           path="chats"

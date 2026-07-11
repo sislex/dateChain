@@ -21,6 +21,7 @@ import { ApiBearerAuth, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import { CurrentUser, type AuthenticatedUser } from "../auth/decorators";
 
 import { ReorderPhotosDto, UpsertProfileDto } from "./dto";
+import { MediaAccessService } from "./media-access.service";
 import { MediaService, type MediaVariant } from "./media.service";
 import { PhotosService } from "./photos.service";
 import { ProfilesService } from "./profiles.service";
@@ -86,6 +87,7 @@ export class MediaController {
   constructor(
     private readonly photos: PhotosService,
     private readonly media: MediaService,
+    private readonly access: MediaAccessService,
   ) {}
 
   @Get("photo/:id")
@@ -103,8 +105,9 @@ export class MediaController {
     id: string,
     variant: MediaVariant,
   ): Promise<StreamableFile> {
-    // Ownership check — foreign photos are rejected with 403 (findOwned).
-    const photo = await this.photos.findOwned(user.userId, id);
+    // Owner or a permitted viewer (discoverable owner, no block) — else 403.
+    const photo = await this.photos.findById(id);
+    await this.access.assertCanView(user.userId, photo);
     const path = this.media.filePath(photo.storageKey, variant);
     if (!existsSync(path)) throw new NotFoundException("File missing");
     return new StreamableFile(createReadStream(path), { type: "image/jpeg" });

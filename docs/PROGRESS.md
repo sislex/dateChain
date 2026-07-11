@@ -23,7 +23,7 @@
 | 3    | 3.6 | Сиды и демо-данные                        |   ✅   | 2026-07-11 | init   | seed-скрипт (`pnpm seed`): N демо-профилей с гео, интересами и фото (sharp+blurhash на диск); e2e: seed наполняет БД, discovery для сид-пользователя возвращает непустую колоду с фото. **Фаза 3 завершена**                                                    |
 | 4    | 4.1 | Каркас user-web                           |   ✅   | 2026-07-11 | init   | Vite+React+RTK+RTK Query+Router, socket-middleware (auto-connect по auth), authSlice с refresh-ротацией, adaptive layout (BottomNav mobile / SideNav desktop из @datechain/ui), ProtectedRoute; build+preview 200, 6 unit-тестов зелёные                        |
 | 4    | 4.2 | Авторизация и онбординг                   |   ✅   | 2026-07-11 | init   | OTP-флоу (телефон→код) + многошаговый онбординг профиля (имя/дата/пол/интересы) на @datechain/ui, zod-валидация с 18+, RTK Query authApi/profileApi, setCredentials; Playwright e2e (мок-API): полный флоу→discovery + блок 18+; 10 unit; CI-джоба user-web-e2e |
-| 4    | 4.3 | Discovery / свайпы                        |   ⬜   |            |        |                                                                                                                                                                                                                                                                 |
+| 4    | 4.3 | Discovery / свайпы                        |   ✅   | 2026-07-11 | init   | DiscoveryPage (колода на SwipeCard+ActionBar, живые API getDeck/swipe), экран мэтча, пустое состояние, лимит(429); бэкенд: MediaAccessService (кросс-юзерный доступ к фото, 3.1-403 сохранён); Playwright: свайп→мэтч + пустая колода                           |
 | 4    | 4.4 | Фильтры подбора                           |   ⬜   |            |        |                                                                                                                                                                                                                                                                 |
 | 4    | 4.5 | Мэтчи и чат (real-time)                   |   ⬜   |            |        |                                                                                                                                                                                                                                                                 |
 | 4    | 4.6 | Профиль и настройки                       |   ⬜   |            |        |                                                                                                                                                                                                                                                                 |
@@ -152,3 +152,10 @@
   пустой interestedIn, `ageOf`) + Playwright e2e с мок-API (`page.route`): полный флоу телефон→код→профиль→
   `/app/discovery`, и блок регистрации <18 с ошибкой. Vitest ограничен `src`, Playwright — `tests/e2e`.
   10 unit + 2 e2e зелёные. Добавлена CI-джоба `user-web-e2e` (Playwright chromium).
+- **2026-07-11 — Шаг 4.3.** Discovery/свайпы. **Бэкенд:** `MediaAccessService` — доступ к фото: владелец ИЛИ
+  (у зрителя есть профиль И профиль владельца discoverable И нет блокировки); `MediaController` использует его
+  вместо owner-only, `PhotosService.findById`. e2e 3.1 «чужое фото 403» сохранён (у чужого нет профиля). Unit на
+  правило доступа. **Фронт:** `discoveryApi` (getDeck/swipe + `photoUrl`), `DiscoveryPage` — колода на `SwipeCard`
+  (императивный `swipe()` от `ActionBar`), маппинг direction→action, живой запрос свайпа, оптимистичное снятие карты,
+  `MatchScreen` при взаимном лайке (рендерится даже при исчерпанной колоде), пустое состояние (deck-empty) и
+  лимит(429→deck-limit). Playwright e2e (мок-API): лайк→экран мэтча (dialog «Новый мэтч»), пустая колода. 89 unit(api) + 4 e2e(user-web).

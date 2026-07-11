@@ -21,6 +21,12 @@ export class PhotosService {
     return this.photos.find({ where: { userId }, order: { position: "ASC" } });
   }
 
+  async findById(photoId: string): Promise<Photo> {
+    const photo = await this.photos.findOne({ where: { id: photoId } });
+    if (!photo) throw new NotFoundException("Photo not found");
+    return photo;
+  }
+
   async findOwned(userId: string, photoId: string): Promise<Photo> {
     const photo = await this.photos.findOne({ where: { id: photoId } });
     if (!photo) throw new NotFoundException("Photo not found");

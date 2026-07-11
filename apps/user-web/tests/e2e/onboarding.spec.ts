@@ -27,6 +27,13 @@ async function mockApi(page: Page): Promise<void> {
       body: JSON.stringify({ userId: "u1", completion: 60, age: 29 }),
     }),
   );
+  // Discovery page loads right after onboarding; return an empty deck.
+  await page.route("**/api/discovery/deck**", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: "[]" }),
+  );
+  await page.route("**/api/profile/me/photos", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: "[]" }),
+  );
 }
 
 test("completes registration from phone to a ready profile", async ({ page }) => {
@@ -51,7 +58,7 @@ test("completes registration from phone to a ready profile", async ({ page }) =>
   await page.getByRole("button", { name: "Начать знакомиться" }).click();
 
   await expect(page).toHaveURL(/\/app\/discovery/);
-  await expect(page.getByRole("heading", { name: "Discovery" })).toBeVisible();
+  await expect(page.getByTestId("deck-empty")).toBeVisible();
 });
 
 test("blocks registration for users under 18", async ({ page }) => {
