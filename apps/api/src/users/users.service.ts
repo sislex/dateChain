@@ -31,6 +31,10 @@ export class UsersService {
       .getOne();
   }
 
+  async updateStatus(userId: string, status: UserStatus): Promise<void> {
+    await this.users.update({ id: userId }, { status });
+  }
+
   /** Finds an existing user by contact or creates a fresh USER account. */
   async findOrCreateByContact(channel: ContactChannel, identifier: string): Promise<User> {
     const existing = await this.findByContact(channel, identifier);

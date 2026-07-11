@@ -1,0 +1,96 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dc-space-6);
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--dc-space-4);
+  box-sizing: border-box;
+  font-family: var(--dc-font-family);
+  color: var(--dc-color-text);
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60dvh;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--dc-space-3);
+}
+
+.name {
+  font-size: var(--dc-font-size-lg);
+  font-weight: var(--dc-font-weight-bold);
+}
+
+.completion {
+  font-size: var(--dc-font-size-sm);
+  color: var(--dc-color-text-secondary);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dc-space-3);
+}
+
+.sectionTitle {
+  font-size: var(--dc-font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--dc-color-text-secondary);
+  margin: 0;
+}
+
+.photos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--dc-space-2);
+}
+
+.photo {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--dc-radius-md);
+  overflow: hidden;
+}
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  cursor: pointer;
+}
+
+.addPhoto {
+  aspect-ratio: 3 / 4;
+  border: 1px dashed var(--dc-color-border);
+  border-radius: var(--dc-radius-md);
+  background: transparent;
+  color: var(--dc-color-text-secondary);
+  cursor: pointer;
+  font-family: var(--dc-font-family);
+}
+
+.modalActions {
+  display: flex;
+  gap: var(--dc-space-2);
+  margin-top: var(--dc-space-4);
+  justify-content: flex-end;
+}

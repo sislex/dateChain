@@ -1,5 +1,5 @@
 import { UserRole } from "@datechain/types";
-import { Body, Controller, Get, HttpCode, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
 import { AuthService } from "./auth.service";
@@ -45,6 +45,13 @@ export class AuthController {
   @ApiBearerAuth("access-token")
   async logout(@Body() dto: RefreshDto): Promise<void> {
     await this.auth.logout(dto.refreshToken);
+  }
+
+  @Delete("account")
+  @HttpCode(204)
+  @ApiBearerAuth("access-token")
+  async deleteAccount(@CurrentUser() user: AuthenticatedUser): Promise<void> {
+    await this.auth.deleteAccount(user.userId);
   }
 
   @Get("me")

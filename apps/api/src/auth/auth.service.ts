@@ -2,7 +2,7 @@ import { UserRole } from "@datechain/types";
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { compare } from "bcryptjs";
 
-import { User } from "../users/user.entity";
+import { User, UserStatus } from "../users/user.entity";
 import { UsersService } from "../users/users.service";
 
 import { OtpChannel } from "./dto";
@@ -55,6 +55,12 @@ export class AuthService {
 
   async logout(rawToken: string): Promise<void> {
     await this.tokens.revoke(rawToken);
+  }
+
+  /** Soft-deletes the account (status DELETED) and revokes all sessions. */
+  async deleteAccount(userId: string): Promise<void> {
+    await this.users.updateStatus(userId, UserStatus.Deleted);
+    await this.tokens.revokeAllForUser(userId);
   }
 
   async adminLogin(email: string, password: string, totp?: string): Promise<AuthResult> {

@@ -5,6 +5,7 @@ import { MatchesPage } from "../features/chat/MatchesPage";
 import { DiscoveryPage } from "../features/discovery/DiscoveryPage";
 import { DiscoverySettingsPage } from "../features/discovery/DiscoverySettingsPage";
 import { OnboardingFlow } from "../features/onboarding/OnboardingFlow";
+import { ProfilePage } from "../features/profile/ProfilePage";
 import { PlaceholderPage } from "../pages/PlaceholderPage";
 import { WelcomePage } from "../pages/WelcomePage";
 
@@ -30,7 +31,7 @@ export function App() {
         <Route path="likes" element={<PlaceholderPage title="Лайки" />} />
         <Route path="chats" element={<MatchesPage />} />
         <Route path="chats/:matchId" element={<ChatPage />} />
-        <Route path="profile" element={<PlaceholderPage title="Профиль" subtitle="Шаг 4.6" />} />
+        <Route path="profile" element={<ProfilePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/app" replace />} />
     </Routes>

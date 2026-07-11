@@ -25,7 +25,18 @@ export const authApi = baseApi.injectEndpoints({
     >({
       query: (body) => ({ url: "/auth/otp/verify", method: "POST", body }),
     }),
+    logoutServer: build.mutation<void, { refreshToken: string }>({
+      query: (body) => ({ url: "/auth/logout", method: "POST", body }),
+    }),
+    deleteAccount: build.mutation<void, void>({
+      query: () => ({ url: "/auth/account", method: "DELETE" }),
+    }),
   }),
 });
 
-export const { useRequestOtpMutation, useVerifyOtpMutation } = authApi;
+export const {
+  useRequestOtpMutation,
+  useVerifyOtpMutation,
+  useLogoutServerMutation,
+  useDeleteAccountMutation,
+} = authApi;

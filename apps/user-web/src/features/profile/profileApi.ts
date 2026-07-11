@@ -67,6 +67,10 @@ export const profileApi = baseApi.injectEndpoints({
       query: (body) => ({ url: "/profile/me/photos", method: "POST", body }),
       invalidatesTags: ["Profile"],
     }),
+    deletePhoto: build.mutation<{ deleted: true }, string>({
+      query: (photoId) => ({ url: `/profile/me/photos/${photoId}`, method: "DELETE" }),
+      invalidatesTags: ["Profile"],
+    }),
   }),
 });
 
@@ -75,4 +79,5 @@ export const {
   useUpsertProfileMutation,
   useListPhotosQuery,
   useUploadPhotoMutation,
+  useDeletePhotoMutation,
 } = profileApi;
