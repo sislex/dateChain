@@ -26,7 +26,7 @@
 }
 
 .control::placeholder {
-  color: var(--dc-color-text-disabled);
+  color: var(--dc-color-text-secondary);
 }
 
 .control:focus {
@@ -45,7 +45,8 @@
 
 .error {
   font-size: var(--dc-font-size-xs);
-  color: var(--dc-color-nope);
+  /* Darker than the brand --dc-color-nope so validation text meets WCAG AA. */
+  color: #c62828;
 }
 
 .textarea {

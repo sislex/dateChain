@@ -21,8 +21,9 @@
   --dc-color-surface: #ffffff;
   --dc-color-surface-alt: #f7f7f7;
   --dc-color-text: #000000;
-  --dc-color-text-secondary: #8f8f8f;
-  --dc-color-text-disabled: #c4c4c4;
+  /* #767676 clears WCAG AA (4.5:1) on white; keep a lighter shade for disabled. */
+  --dc-color-text-secondary: #767676;
+  --dc-color-text-disabled: #949494;
   --dc-color-border: #ebebeb;
   --dc-color-overlay: rgba(0, 0, 0, 0.5);
 
