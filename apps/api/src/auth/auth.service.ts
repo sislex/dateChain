@@ -5,6 +5,7 @@ import { compare } from "bcryptjs";
 import { User, UserStatus } from "../users/user.entity";
 import { UsersService } from "../users/users.service";
 
+import { normalizeContact } from "./contact";
 import { OtpChannel } from "./dto";
 import { OtpService } from "./otp.service";
 import { TokenService, type TokenPair } from "./token.service";
@@ -35,13 +36,14 @@ export class AuthService {
   ) {}
 
   async requestOtp(channel: OtpChannel, identifier: string): Promise<void> {
-    await this.otp.request(channel, identifier);
+    await this.otp.request(channel, normalizeContact(channel, identifier));
   }
 
   async verifyOtp(channel: OtpChannel, identifier: string, code: string): Promise<AuthResult> {
-    const ok = await this.otp.verify(channel, identifier, code);
+    const contact = normalizeContact(channel, identifier);
+    const ok = await this.otp.verify(channel, contact, code);
     if (!ok) throw new UnauthorizedException("Invalid or expired code");
-    const user = await this.users.findOrCreateByContact(channel, identifier);
+    const user = await this.users.findOrCreateByContact(channel, contact);
     return { user: publicUser(user), tokens: await this.tokens.issueTokenPair(user) };
   }
 

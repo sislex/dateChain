@@ -16,7 +16,8 @@
     "openapi:generate": "ts-node src/scripts/generate-openapi.ts",
     "seed": "ts-node src/scripts/seed.ts",
     "reset": "ts-node src/scripts/reset.ts",
-    "photos:candidates": "ts-node src/scripts/set-candidate-photos.ts"
+    "photos:candidates": "ts-node src/scripts/set-candidate-photos.ts",
+    "likes:arm": "ts-node src/scripts/arm-likes.ts"
   },
   "dependencies": {
     "@datechain/types": "workspace:*",
