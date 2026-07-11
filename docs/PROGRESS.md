@@ -25,7 +25,7 @@
 | 4    | 4.2 | Авторизация и онбординг                   |   ✅   | 2026-07-11 | init   | OTP-флоу (телефон→код) + многошаговый онбординг профиля (имя/дата/пол/интересы) на @datechain/ui, zod-валидация с 18+, RTK Query authApi/profileApi, setCredentials; Playwright e2e (мок-API): полный флоу→discovery + блок 18+; 10 unit; CI-джоба user-web-e2e |
 | 4    | 4.3 | Discovery / свайпы                        |   ✅   | 2026-07-11 | init   | DiscoveryPage (колода на SwipeCard+ActionBar, живые API getDeck/swipe), экран мэтча, пустое состояние, лимит(429); бэкенд: MediaAccessService (кросс-юзерный доступ к фото, 3.1-403 сохранён); Playwright: свайп→мэтч + пустая колода                           |
 | 4    | 4.4 | Фильтры подбора                           |   ✅   | 2026-07-11 | init   | DiscoverySettingsPage (радиус/возраст/пол/видимость на @datechain/ui Slider/Chip/Switch), upsert профиля инвалидирует Deck→refetch; Playwright: изменение фильтров сохраняет новые значения (radius/discoverable) и возвращает к колоде                         |
-| 4    | 4.5 | Мэтчи и чат (real-time)                   |   ⬜   |            |        |                                                                                                                                                                                                                                                                 |
+| 4    | 4.5 | Мэтчи и чат (real-time)                   |   ✅   | 2026-07-11 | init   | Бэк: `GET /matches/previews` (партнёр+фото+последнее сообщение+непрочитанные); фронт: MatchesPage (лента новых+диалоги), ChatPage (тред/typing/read/unmatch) на @datechain/ui, real-time через socket-шину; Playwright: список→чат, отправка+входящее+typing    |
 | 4    | 4.6 | Профиль и настройки                       |   ⬜   |            |        |                                                                                                                                                                                                                                                                 |
 | 5    | 5.1 | Каркас admin-web + вход                   |   ⬜   |            |        |                                                                                                                                                                                                                                                                 |
 | 5    | 5.2 | Дашборд + пользователи                    |   ⬜   |            |        |                                                                                                                                                                                                                                                                 |
@@ -164,3 +164,11 @@
   `upsertProfile` (мержит с обязательными полями). `upsertProfile` инвалидирует теги `Profile`+`Deck` → колода
   перезапрашивается с новыми параметрами. Роут `/app/discovery/settings`. Playwright e2e: меняем радиус (150),
   выключаем «показывать меня» → PUT содержит `radiusKm:150, discoverable:false`, возврат к `/app/discovery`. 5 e2e user-web.
+- **2026-07-11 — Шаг 4.5.** Мэтчи и чат (real-time). **Бэк:** `MatchPreviewService` + `GET /matches/previews` —
+  превью с партнёром (имя/главное фото), последним сообщением (DISTINCT ON) и числом непрочитанных (GROUP BY).
+  **Фронт:** `chatApi` (previews/messages/send/read/unmatch), хук `useSocketEvent` (подписка на DOM-шину socket),
+  `MatchesPage` (лента «новые мэтчи» + список диалогов на `MatchListItem`, refetch по `match:new`/`message:new`),
+  `ChatPage` (тред на `ChatBubble`, отправка через REST с оптимистичным добавлением — бэк сам транслирует
+  `message:new` в комнату; приём входящих и `typing` через шину с фильтром по matchId; join комнаты; markRead;
+  статусы прочтения; кнопка «Отмэтчить»). Playwright e2e: список→открытие чата; отправка сообщения + входящее
+  через шину + индикатор набора. Итог: 7 e2e user-web + backend matching/chat e2e зелёные.

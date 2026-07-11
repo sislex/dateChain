@@ -111,9 +111,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() body: { matchId: string; isTyping: boolean },
   ): Ack {
-    client
-      .to(`match:${body.matchId}`)
-      .emit("typing", { userId: client.data.userId, isTyping: body.isTyping });
+    client.to(`match:${body.matchId}`).emit("typing", {
+      userId: client.data.userId,
+      isTyping: body.isTyping,
+      matchId: body.matchId,
+    });
     return { ok: true };
   }
 

@@ -454,6 +454,25 @@
         ]
       }
     },
+    "/matches/previews": {
+      "get": {
+        "operationId": "MatchingController_listPreviews",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "matching"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
     "/matches/{id}": {
       "delete": {
         "operationId": "MatchingController_unmatch",

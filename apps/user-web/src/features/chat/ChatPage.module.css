@@ -1,0 +1,53 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60dvh;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--dc-space-2) var(--dc-space-3);
+  border-bottom: 1px solid var(--dc-color-border);
+}
+
+.back {
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--dc-color-text);
+}
+
+.thread {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--dc-space-4);
+  display: flex;
+  flex-direction: column;
+}
+
+.composer {
+  display: flex;
+  gap: var(--dc-space-2);
+  padding: var(--dc-space-3);
+  border-top: 1px solid var(--dc-color-border);
+  align-items: center;
+}
+
+.composer > :first-child {
+  flex: 1;
+}

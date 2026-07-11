@@ -4,6 +4,7 @@ import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { CurrentUser, type AuthenticatedUser } from "../auth/decorators";
 
 import { SwipeDto } from "./dto";
+import { MatchPreviewService } from "./match-preview.service";
 import { MatchService } from "./match.service";
 import { SwipeService } from "./swipe.service";
 
@@ -14,6 +15,7 @@ export class MatchingController {
   constructor(
     private readonly swipes: SwipeService,
     private readonly matches: MatchService,
+    private readonly previews: MatchPreviewService,
   ) {}
 
   @Post("swipes")
@@ -30,6 +32,11 @@ export class MatchingController {
   @Get("matches")
   listMatches(@CurrentUser() user: AuthenticatedUser) {
     return this.matches.listForUser(user.userId);
+  }
+
+  @Get("matches/previews")
+  listPreviews(@CurrentUser() user: AuthenticatedUser) {
+    return this.previews.listPreviews(user.userId);
   }
 
   @Delete("matches/:id")
