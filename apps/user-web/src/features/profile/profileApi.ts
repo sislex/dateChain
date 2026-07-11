@@ -36,6 +36,7 @@ export interface UpsertProfileInput {
   radiusKm?: number;
   ageMin?: number;
   ageMax?: number;
+  discoverable?: boolean;
 }
 
 export interface PhotoView {
@@ -55,7 +56,8 @@ export const profileApi = baseApi.injectEndpoints({
     }),
     upsertProfile: build.mutation<ProfileView, UpsertProfileInput>({
       query: (body) => ({ url: "/profile/me", method: "PUT", body }),
-      invalidatesTags: ["Profile"],
+      // Profile edits (incl. discovery filters) must refresh the deck too.
+      invalidatesTags: ["Profile", "Deck"],
     }),
     listPhotos: build.query<PhotoView[], void>({
       query: () => "/profile/me/photos",

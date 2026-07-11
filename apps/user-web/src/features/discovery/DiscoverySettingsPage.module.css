@@ -1,0 +1,42 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dc-space-5, 20px);
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+  padding: var(--dc-space-6);
+  box-sizing: border-box;
+  font-family: var(--dc-font-family);
+  color: var(--dc-color-text);
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60dvh;
+}
+
+.title {
+  font-size: var(--dc-font-size-xl);
+  font-weight: var(--dc-font-weight-bold);
+  margin: 0;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dc-space-2);
+}
+
+.groupLabel {
+  font-size: var(--dc-font-size-sm);
+  font-weight: var(--dc-font-weight-semibold);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dc-space-2);
+}
