@@ -19,6 +19,7 @@ import { MatchingModule } from "./matching/matching.module";
 import { ModerationModule } from "./moderation/moderation.module";
 import { NotificationsModule } from "./notifications/notifications.module";
 import { ProfilesModule } from "./profiles/profiles.module";
+import { RatingsModule } from "./ratings/ratings.module";
 import { RedisModule } from "./redis/redis.module";
 import { UsersModule } from "./users/users.module";
 import { WalletModule } from "./wallet/wallet.module";
@@ -64,6 +65,7 @@ import { WalletModule } from "./wallet/wallet.module";
     MatchingModule,
     ChatModule,
     DatesModule,
+    RatingsModule,
     ModerationModule,
     NotificationsModule,
     AdminModule,
