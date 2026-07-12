@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsBoolean, IsEnum, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsEnum, IsEthereumAddress, IsOptional, IsString } from "class-validator";
 
 import { ReportStatus } from "../moderation/report.entity";
 import { UserStatus } from "../users/user.entity";
@@ -29,4 +29,10 @@ export class ResolveReportDto {
 export class SetSettingDto {
   @ApiProperty()
   value!: unknown;
+}
+
+export class SetServiceWalletDto {
+  @ApiProperty({ description: "0x-prefixed Ethereum address for service commissions" })
+  @IsEthereumAddress()
+  address!: string;
 }

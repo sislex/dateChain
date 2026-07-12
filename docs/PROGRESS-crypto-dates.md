@@ -10,9 +10,9 @@
 | 1.1 | `DateEscrow.sol` | ✅ | — | (phase) | propose/accept/confirm/cancel/decline |
 | 1.2 | Unit-тесты эскроу (все ветки) | ✅ | 14/14 | (phase) | все ветки + доступ + reverts |
 | 1.3 | Скрипт деплоя + `deployments/local.json` | ✅ | deploy ok | (phase) | пишет `deployments/localhost.json` |
-| 2.1 | ChainService (ethers, адреса/ABI, env) | ⬜ | — | — | |
-| 2.2 | Wallet: кастодиальные ключи, `GET /wallet` | ⬜ | — | — | |
-| 2.3 | Сервисный кошелёк в админке | ⬜ | — | — | |
+| 2.1 | ChainService (ethers, адреса/ABI, env) | ✅ | boot ok | (phase) | provider + treasury nonce-менеджер |
+| 2.2 | Wallet: кастодиальные ключи, `GET /wallet` | ✅ | live ok | (phase) | random wallet, gas+seed DATE, AES-ключи |
+| 2.3 | Сервисный кошелёк в админке | ✅ | live GET/PUT | (phase) | on-chain setServiceWallet, чтение из контракта |
 | 3.1 | `POST /dates` — предложение | ⬜ | — | — | |
 | 3.2 | `accept` / `decline` | ⬜ | — | — | |
 | 3.3 | `confirm` — 80/20 | ⬜ | — | — | |

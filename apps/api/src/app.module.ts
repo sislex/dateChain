@@ -8,6 +8,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { AdminModule } from "./admin/admin.module";
 import { AuthModule } from "./auth/auth.module";
 import { JwtAuthGuard, RolesGuard } from "./auth/guards";
+import { ChainModule } from "./chain/chain.module";
 import { ChatModule } from "./chat/chat.module";
 import { validateEnv } from "./config/env.validation";
 import { buildDataSourceOptions } from "./database/typeorm.config";
@@ -19,6 +20,7 @@ import { NotificationsModule } from "./notifications/notifications.module";
 import { ProfilesModule } from "./profiles/profiles.module";
 import { RedisModule } from "./redis/redis.module";
 import { UsersModule } from "./users/users.module";
+import { WalletModule } from "./wallet/wallet.module";
 
 @Module({
   imports: [
@@ -52,8 +54,10 @@ import { UsersModule } from "./users/users.module";
       }),
     }),
     RedisModule,
+    ChainModule,
     UsersModule,
     AuthModule,
+    WalletModule,
     ProfilesModule,
     DiscoveryModule,
     MatchingModule,

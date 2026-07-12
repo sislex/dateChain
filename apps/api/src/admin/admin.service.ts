@@ -1,8 +1,10 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { formatUnits } from "ethers";
 import { Repository } from "typeorm";
 
 import { TokenService, type TokenPair } from "../auth/token.service";
+import { ChainService } from "../chain/chain.service";
 import { Message } from "../chat/message.entity";
 import { Match } from "../matching/match.entity";
 import { Swipe } from "../matching/swipe.entity";
@@ -34,7 +36,32 @@ export class AdminService {
     @InjectRepository(Report) private readonly reports: Repository<Report>,
     private readonly tokens: TokenService,
     private readonly reportService: ReportService,
+    private readonly chain: ChainService,
   ) {}
+
+  /** Service (commission) wallet: on-chain address, its DATE balance, and fee. */
+  async getServiceWallet(): Promise<{ address: string; balance: string; feeBps: number }> {
+    // Read live values from the escrow contract (not the deploy-time snapshot).
+    const escrow = this.chain.escrow();
+    const address: string = await escrow.serviceWallet();
+    const feeBps: bigint = await escrow.feeBps();
+    const raw: bigint = await this.chain.token().balanceOf(address);
+    return { address, balance: formatUnits(raw, 18), feeBps: Number(feeBps) };
+  }
+
+  /** Point the escrow's commission wallet at a new address (owner-signed on-chain). */
+  async setServiceWallet(
+    actorId: string,
+    address: string,
+  ): Promise<{ address: string; balance: string; feeBps: number }> {
+    await this.chain.withTreasury(async (treasury, nextNonce) => {
+      await (
+        await this.chain.escrow(treasury).setServiceWallet(address, { nonce: nextNonce() })
+      ).wait();
+    });
+    await this.audit(actorId, "service_wallet.update", undefined, { address });
+    return this.getServiceWallet();
+  }
 
   async audit(
     actorId: string,
