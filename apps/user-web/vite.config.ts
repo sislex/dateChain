@@ -5,7 +5,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5173,
+    port: 5175,
     proxy: {
       // Backend routes live at the root (/auth, /health, …); strip the /api prefix.
       "/api": {
