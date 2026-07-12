@@ -57,8 +57,11 @@ export class ProfilesService {
       school: dto.school ?? null,
       heightCm: dto.heightCm ?? null,
       lookingFor: dto.lookingFor ?? null,
-      lat: dto.lat ?? null,
-      lng: dto.lng ?? null,
+      // Preserve existing coordinates when the form omits them (profile/settings
+      // screens don't resend lat/lng — clearing them would drop the user from
+      // every deck and empty their own).
+      lat: dto.lat ?? existing?.lat ?? null,
+      lng: dto.lng ?? existing?.lng ?? null,
       discoverable: dto.discoverable ?? existing?.discoverable ?? true,
       radiusKm: dto.radiusKm ?? existing?.radiusKm ?? 80,
       ageMin: dto.ageMin ?? existing?.ageMin ?? 18,

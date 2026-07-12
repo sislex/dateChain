@@ -1,4 +1,5 @@
-import { Avatar, Button, Input, Modal, Spinner, Switch, TextArea } from "@datechain/ui";
+import { Gender } from "@datechain/types";
+import { Avatar, Button, Chip, Input, Modal, Spinner, Switch, TextArea } from "@datechain/ui";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -16,6 +17,12 @@ import {
   useUpsertProfileMutation,
 } from "./profileApi";
 
+const GENDER_LABELS: Record<Gender, string> = {
+  [Gender.Man]: "Мужчина",
+  [Gender.Woman]: "Женщина",
+  [Gender.More]: "Другое",
+};
+
 export function ProfilePage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -31,26 +38,42 @@ export function ProfilePage() {
   const [deleteAccount] = useDeleteAccountMutation();
 
   const [displayName, setDisplayName] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [gender, setGender] = useState<Gender | null>(null);
+  const [interestedIn, setInterestedIn] = useState<Gender[]>([]);
   const [bio, setBio] = useState("");
   const [interests, setInterests] = useState("");
   const [discoverable, setDiscoverable] = useState(true);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!profile) return;
     setDisplayName(profile.displayName);
+    setBirthDate(profile.birthDate.slice(0, 10));
+    setGender(profile.gender);
+    setInterestedIn(profile.interestedIn);
     setBio(profile.bio ?? "");
     setInterests(profile.interests.join(", "));
     setDiscoverable(profile.discoverable);
   }, [profile]);
 
+  function toggleInterest(g: Gender) {
+    setInterestedIn((prev) => (prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]));
+  }
+
   async function onSave() {
-    if (!profile) return;
+    if (!profile || !gender) return;
+    if (interestedIn.length === 0) {
+      setSaveError("Выберите, кого вы ищете");
+      return;
+    }
+    setSaveError(null);
     await upsert({
       displayName,
-      birthDate: profile.birthDate,
-      gender: profile.gender,
-      interestedIn: profile.interestedIn,
+      birthDate,
+      gender,
+      interestedIn,
       bio,
       interests: interests
         .split(",")
@@ -148,12 +171,43 @@ export function ProfilePage() {
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>О себе</h3>
         <Input label="Имя" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+        <Input
+          label="Дата рождения"
+          type="date"
+          value={birthDate}
+          onChange={(e) => setBirthDate(e.target.value)}
+        />
+        <div className={styles.group}>
+          <span className={styles.groupLabel}>Пол</span>
+          <div className={styles.chips}>
+            {Object.values(Gender).map((g) => (
+              <Chip key={g} selected={gender === g} onToggle={() => setGender(g)}>
+                {GENDER_LABELS[g]}
+              </Chip>
+            ))}
+          </div>
+        </div>
+        <div className={styles.group}>
+          <span className={styles.groupLabel}>Кого ищу</span>
+          <div className={styles.chips}>
+            {Object.values(Gender).map((g) => (
+              <Chip
+                key={g}
+                selected={interestedIn.includes(g)}
+                onToggle={() => toggleInterest(g)}
+              >
+                {GENDER_LABELS[g]}
+              </Chip>
+            ))}
+          </div>
+        </div>
         <TextArea label="Био" value={bio} onChange={(e) => setBio(e.target.value)} />
         <Input
           label="Интересы (через запятую)"
           value={interests}
           onChange={(e) => setInterests(e.target.value)}
         />
+        {saveError && <span className={styles.err}>{saveError}</span>}
         <Button disabled={saving} onClick={onSave}>
           Сохранить
         </Button>

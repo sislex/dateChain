@@ -23,6 +23,23 @@
   border-bottom: 1px solid var(--dc-color-border);
 }
 
+.partner {
+  display: flex;
+  align-items: center;
+  gap: var(--dc-space-2);
+  min-width: 0;
+}
+
+.partnerName {
+  font-family: var(--dc-font-family);
+  font-weight: var(--dc-font-weight-semibold);
+  font-size: var(--dc-font-size-md);
+  color: var(--dc-color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .back {
   border: none;
   background: transparent;

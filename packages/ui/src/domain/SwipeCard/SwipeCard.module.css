@@ -58,6 +58,19 @@
   font-weight: var(--dc-font-weight-regular);
 }
 
+.gender {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--dc-font-size-xs);
+  font-weight: var(--dc-font-weight-semibold);
+  padding: 2px 8px;
+  border-radius: var(--dc-radius-pill);
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(4px);
+  align-self: center;
+}
+
 .distance {
   font-size: var(--dc-font-size-sm);
   opacity: 0.9;

@@ -8,6 +8,8 @@ import styles from "./SwipeCard.module.css";
 
 export type SwipeDirection = "like" | "nope" | "superlike";
 
+export type CardGender = "MAN" | "WOMAN" | "MORE";
+
 export interface SwipeCardProfile {
   id: string;
   name: string;
@@ -15,7 +17,14 @@ export interface SwipeCardProfile {
   photos: string[];
   distanceKm?: number;
   bio?: string;
+  gender?: CardGender;
 }
+
+const GENDER_BADGE: Record<CardGender, { icon: string; label: string }> = {
+  MAN: { icon: "♂", label: "Мужчина" },
+  WOMAN: { icon: "♀", label: "Женщина" },
+  MORE: { icon: "⚧", label: "Другое" },
+};
 
 export interface SwipeCardHandle {
   /** Programmatically swipe the card (used by ActionBar buttons). */
@@ -125,6 +134,12 @@ export const SwipeCard = forwardRef<SwipeCardHandle, SwipeCardProps>(function Sw
         <div className={styles.nameRow}>
           <h3 className={styles.name}>{profile.name}</h3>
           <span className={styles.age}>{profile.age}</span>
+          {profile.gender && (
+            <span className={styles.gender} title={GENDER_BADGE[profile.gender].label}>
+              <span aria-hidden="true">{GENDER_BADGE[profile.gender].icon}</span>
+              {GENDER_BADGE[profile.gender].label}
+            </span>
+          )}
         </div>
         {profile.distanceKm != null && (
           <div className={styles.distance}>{profile.distanceKm} км от вас</div>

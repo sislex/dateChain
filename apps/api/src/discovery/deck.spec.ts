@@ -3,6 +3,7 @@ import { toDeckCandidate, type DeckPhoto, type DeckRow } from "./deck";
 const row: DeckRow = {
   userId: "u2",
   displayName: "Kate",
+  gender: "WOMAN",
   age: "27.0",
   distance_km: "3.4",
   bio: "hi",

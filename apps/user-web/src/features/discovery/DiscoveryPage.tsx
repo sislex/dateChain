@@ -109,6 +109,7 @@ export function DiscoveryPage() {
             id: candidate.userId,
             name: candidate.displayName,
             age: candidate.age,
+            gender: candidate.gender,
             distanceKm: candidate.distanceKm,
             bio: candidate.bio ?? undefined,
             photos: candidate.photos.map((p) => photoUrl(p.id)),
