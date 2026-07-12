@@ -7,7 +7,6 @@
     "chain:node": "hardhat node",
     "chain:test": "hardhat test",
     "chain:deploy": "hardhat run scripts/deploy.ts --network localhost",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "hardhat test"
   },
   "devDependencies": {
