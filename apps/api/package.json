@@ -6,6 +6,7 @@
     "build": "nest build",
     "start": "node dist/main.js",
     "start:dev": "nest start --watch",
+    "dev": "nest start --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint \"src/**/*.ts\"",
     "test": "jest --passWithNoTests",
@@ -17,7 +18,8 @@
     "seed": "ts-node src/scripts/seed.ts",
     "reset": "ts-node src/scripts/reset.ts",
     "photos:candidates": "ts-node src/scripts/set-candidate-photos.ts",
-    "likes:arm": "ts-node src/scripts/arm-likes.ts"
+    "likes:arm": "ts-node src/scripts/arm-likes.ts",
+    "scenarios": "ts-node src/scripts/api-scenarios.ts"
   },
   "dependencies": {
     "@datechain/types": "workspace:*",
