@@ -12,6 +12,7 @@ import { ChainModule } from "./chain/chain.module";
 import { ChatModule } from "./chat/chat.module";
 import { validateEnv } from "./config/env.validation";
 import { buildDataSourceOptions } from "./database/typeorm.config";
+import { DatesModule } from "./dates/dates.module";
 import { DiscoveryModule } from "./discovery/discovery.module";
 import { HealthModule } from "./health/health.module";
 import { MatchingModule } from "./matching/matching.module";
@@ -62,6 +63,7 @@ import { WalletModule } from "./wallet/wallet.module";
     DiscoveryModule,
     MatchingModule,
     ChatModule,
+    DatesModule,
     ModerationModule,
     NotificationsModule,
     AdminModule,

@@ -64,33 +64,50 @@ export class ChainService implements OnModuleInit {
     return new Wallet(this.config.getOrThrow<string>("TREASURY_PRIVKEY"), this.provider);
   }
 
-  // ── Treasury tx serialization ──────────────────────────────────────────
+  // ── Tx serialization & nonce management (per signer address) ───────────
   // The provider's "latest" count lags under automining, so we keep an
-  // in-memory nonce and serialize all treasury txs through withTreasury().
-  private treasuryLock: Promise<unknown> = Promise.resolve();
-  private treasuryNonce: number | null = null;
+  // in-memory nonce per address and serialize that address's transactions.
+  private locks = new Map<string, Promise<unknown>>();
+  private nonces = new Map<string, number>();
 
-  async withTreasury<T>(
-    fn: (treasury: Wallet, nextNonce: () => number) => Promise<T>,
-  ): Promise<T> {
-    const task = this.treasuryLock.then(async () => {
-      const treasury = this.treasurySigner();
-      if (this.treasuryNonce === null) {
-        this.treasuryNonce = await this.provider.getTransactionCount(treasury.address, "latest");
+  /**
+   * Serializes transactions for `signer` and hands the callback a nonce
+   * allocator so multiple txs in one call never collide. On error the cached
+   * nonce is dropped so the next call re-syncs from chain.
+   */
+  async withSigner<T>(signer: Wallet, fn: (nextNonce: () => number) => Promise<T>): Promise<T> {
+    const addr = signer.address;
+    const prev = this.locks.get(addr) ?? Promise.resolve();
+    const task = prev.then(async () => {
+      if (!this.nonces.has(addr)) {
+        this.nonces.set(addr, await this.provider.getTransactionCount(addr, "latest"));
       }
-      const nextNonce = (): number => this.treasuryNonce!++;
+      const nextNonce = (): number => {
+        const n = this.nonces.get(addr)!;
+        this.nonces.set(addr, n + 1);
+        return n;
+      };
       try {
-        return await fn(treasury, nextNonce);
+        return await fn(nextNonce);
       } catch (err) {
-        this.treasuryNonce = null; // resync from chain on next use
+        this.nonces.delete(addr); // resync from chain on next use
         throw err;
       }
     });
-    this.treasuryLock = task.then(
-      () => undefined,
-      () => undefined,
+    this.locks.set(
+      addr,
+      task.then(
+        () => undefined,
+        () => undefined,
+      ),
     );
     return task;
+  }
+
+  /** Convenience: run a serialized treasury (owner) transaction batch. */
+  withTreasury<T>(fn: (treasury: Wallet, nextNonce: () => number) => Promise<T>): Promise<T> {
+    const treasury = this.treasurySigner();
+    return this.withSigner(treasury, (nextNonce) => fn(treasury, nextNonce));
   }
 
   walletFrom(privateKey: string): Wallet {

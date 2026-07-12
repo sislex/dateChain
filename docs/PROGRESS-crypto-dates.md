@@ -13,12 +13,12 @@
 | 2.1 | ChainService (ethers, адреса/ABI, env) | ✅ | boot ok | (phase) | provider + treasury nonce-менеджер |
 | 2.2 | Wallet: кастодиальные ключи, `GET /wallet` | ✅ | live ok | (phase) | random wallet, gas+seed DATE, AES-ключи |
 | 2.3 | Сервисный кошелёк в админке | ✅ | live GET/PUT | (phase) | on-chain setServiceWallet, чтение из контракта |
-| 3.1 | `POST /dates` — предложение | ⬜ | — | — | |
-| 3.2 | `accept` / `decline` | ⬜ | — | — | |
-| 3.3 | `confirm` — 80/20 | ⬜ | — | — | |
-| 3.4 | `cancel` — штраф/возврат | ⬜ | — | — | |
-| 3.5 | `GET /dates` — список | ⬜ | — | — | |
-| 3.6 | Уведомления о событиях свидания | ⬜ | — | — | |
+| 3.1 | `POST /dates` — предложение | ✅ | live | (phase) | approve+propose, тред, уведомление
+| 3.2 | `accept` / `decline` | ✅ | live | (phase) | accept замораживает, decline
+| 3.3 | `confirm` — 80/20 | ✅ | live 80/20 | (phase) | Борис +80, сервис +20 (проверено)
+| 3.4 | `cancel` — штраф/возврат | ✅ | live штраф | (phase) | после accept: −20% сервису, 80% возврат
+| 3.5 | `GET /dates` — список | ✅ | live | (phase) | роль/контрагент/статус/сумма
+| 3.6 | Уведомления о событиях свидания | ✅ | live | (phase) | DATE_* уведомления
 | 4.1 | Рейтинги | ⬜ | — | — | |
 | 5.1 | UI: баланс кошелька | ⬜ | — | — | |
 | 5.2 | UI: «Предложить свидание» | ⬜ | — | — | |

@@ -5,6 +5,11 @@ export enum NotificationType {
   Message = "MESSAGE",
   SuperLike = "SUPER_LIKE",
   System = "SYSTEM",
+  DateProposed = "DATE_PROPOSED",
+  DateAccepted = "DATE_ACCEPTED",
+  DateDeclined = "DATE_DECLINED",
+  DateConfirmed = "DATE_CONFIRMED",
+  DateCancelled = "DATE_CANCELLED",
 }
 
 @Entity("notifications")
