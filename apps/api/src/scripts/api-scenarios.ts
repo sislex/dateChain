@@ -18,6 +18,8 @@ const API = process.env.TEST_API_URL ?? "http://localhost:3000";
 const PHONE_A = "+79995550001"; // мужчина, ищет женщин
 const PHONE_B = "+79995550002"; // женщина, ищет мужчин
 const PHONE_C = "+79995550003"; // цель для дизлайка
+const PHONE_D = "+79995550004"; // отправитель суперлайка
+const PHONE_E = "+79995550005"; // получатель суперлайка
 
 // ── tiny assertion harness ────────────────────────────────────────────────
 let passed = 0;
@@ -111,8 +113,16 @@ async function main(): Promise<void> {
   });
   const A = { id: userId(a), token: a.body.tokens.accessToken };
   const B = { id: userId(b), token: b.body.tokens.accessToken };
+  const dd = await api<AuthResult>("POST", "/auth/otp/verify", {
+    body: { channel: "phone", identifier: PHONE_D, code: "000000" },
+  });
+  const ee = await api<AuthResult>("POST", "/auth/otp/verify", {
+    body: { channel: "phone", identifier: PHONE_E, code: "000000" },
+  });
   const C = { id: userId(c), token: c.body.tokens.accessToken };
-  const ids = [A.id, B.id, C.id];
+  const D = { id: userId(dd), token: dd.body.tokens.accessToken };
+  const E = { id: userId(ee), token: ee.body.tokens.accessToken };
+  const ids = [A.id, B.id, C.id, D.id, E.id];
 
   // Clean prior scenario data for deterministic re-runs.
   await db(
@@ -334,6 +344,71 @@ async function main(): Promise<void> {
     body: { targetId: B.id, action: "LIKE" },
   });
   check("Повторный свайп A→B → duplicate:true", dupSwipe.body.duplicate === true);
+
+  // ── Scenario 7: super like (notify + deck priority + flag) ───────────────
+  section("Сценарий 7 — суперлайк (уведомление, приоритет, флаг)");
+  // D (муж) и E (жен) — совместимы и рядом; E остаётся видимой (discoverable).
+  await api("PUT", "/profile/me", {
+    token: D.token,
+    body: {
+      displayName: "Супер D",
+      birthDate: "1992-02-02",
+      gender: "MAN",
+      interestedIn: ["WOMAN"],
+      lat: 55.75,
+      lng: 37.61,
+      radiusKm: 150,
+      ageMin: 21,
+      ageMax: 50,
+      discoverable: true,
+    },
+  });
+  await api("PUT", "/profile/me", {
+    token: E.token,
+    body: {
+      displayName: "Супер E",
+      birthDate: "1994-04-04",
+      gender: "WOMAN",
+      interestedIn: ["MAN"],
+      lat: 55.75,
+      lng: 37.61,
+      radiusKm: 150,
+      ageMin: 21,
+      ageMax: 50,
+      discoverable: true,
+    },
+  });
+
+  const superLike = await api<{ matched: boolean }>("POST", "/swipes", {
+    token: D.token,
+    body: { targetId: E.id, action: "SUPER_LIKE" },
+  });
+  check("D суперлайкает E → matched:false (нет взаимности)", superLike.body.matched === false);
+  const [slRow] = await db<{ action: string }>(
+    `SELECT action FROM swipes WHERE "actorId" = $1 AND "targetId" = $2`,
+    [D.id, E.id],
+  );
+  check("БД: свайп записан с action=SUPER_LIKE", slRow?.action === "SUPER_LIKE");
+
+  check("Уведомление SUPER_LIKE пришло получателю E", await waitNotif(E.token, "SUPER_LIKE"));
+  const [slNotif] = await db<{ payload: { fromUserId?: string } }>(
+    `SELECT payload FROM notifications WHERE "userId" = $1 AND type = 'SUPER_LIKE'`,
+    [E.id],
+  );
+  check("БД: payload уведомления содержит fromUserId=D", slNotif?.payload?.fromUserId === D.id);
+
+  const deckE = await api<Array<{ userId: string; superLikedYou: boolean }>>(
+    "GET",
+    "/discovery/deck?limit=50",
+    { token: E.token },
+  );
+  const dInDeck = deckE.body.find((x) => x.userId === D.id);
+  check("Дека E содержит D", Boolean(dInDeck));
+  check("У D в деке E флаг superLikedYou=true", dInDeck?.superLikedYou === true);
+  check("Суперлайкнувший D — первым в колоде E", deckE.body[0]?.userId === D.id);
+
+  // Hide scenario D/E from real users' decks now that the checks are done.
+  await db(`UPDATE profiles SET discoverable = false WHERE "userId" = ANY($1)`, [[D.id, E.id]]);
 
   await ds.destroy();
 

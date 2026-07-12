@@ -20,6 +20,7 @@ export interface DeckCandidate {
   bio: string | null;
   interests: string[];
   photos: DeckPhoto[];
+  superLikedYou: boolean;
 }
 
 export interface SwipeResult {

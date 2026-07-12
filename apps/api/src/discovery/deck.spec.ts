@@ -8,6 +8,7 @@ const row: DeckRow = {
   distance_km: "3.4",
   bio: "hi",
   interests: "coffee,hiking",
+  super_liked_you: false,
 };
 
 describe("toDeckCandidate", () => {
@@ -30,5 +31,10 @@ describe("toDeckCandidate", () => {
   it("handles empty interests", () => {
     expect(toDeckCandidate({ ...row, interests: "" }, []).interests).toEqual([]);
     expect(toDeckCandidate({ ...row, interests: null }, []).interests).toEqual([]);
+  });
+
+  it("maps the super-liked-you flag", () => {
+    expect(toDeckCandidate(row, []).superLikedYou).toBe(false);
+    expect(toDeckCandidate({ ...row, super_liked_you: true }, []).superLikedYou).toBe(true);
   });
 });

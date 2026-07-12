@@ -112,6 +112,7 @@ export function DiscoveryPage() {
             gender: candidate.gender,
             distanceKm: candidate.distanceKm,
             bio: candidate.bio ?? undefined,
+            superLikedYou: candidate.superLikedYou,
             photos: candidate.photos.map((p) => photoUrl(p.id)),
           }}
           onSwipe={handleSwipe}

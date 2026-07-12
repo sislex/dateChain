@@ -32,7 +32,12 @@ export class DiscoveryService {
       `
       SELECT p."userId", p."displayName", p.gender, p.bio, p.interests,
              date_part('year', age(p."birthDate")) AS age,
-             ST_Distance(p.location, v.location) / 1000.0 AS distance_km
+             ST_Distance(p.location, v.location) / 1000.0 AS distance_km,
+             EXISTS (
+               SELECT 1 FROM swipes sl
+               WHERE sl."actorId" = p."userId" AND sl."targetId" = $1
+                 AND sl.action = 'SUPER_LIKE'
+             ) AS super_liked_you
       FROM profiles p
       CROSS JOIN (
         SELECT location, gender, "interestedIn", "radiusKm", "ageMin", "ageMax"
@@ -54,7 +59,7 @@ export class DiscoveryService {
           WHERE (b."blockerId" = $1 AND b."blockedId" = p."userId")
              OR (b."blockerId" = p."userId" AND b."blockedId" = $1)
         )
-      ORDER BY distance_km ASC, p."updatedAt" DESC
+      ORDER BY super_liked_you DESC, distance_km ASC, p."updatedAt" DESC
       LIMIT $2
       `,
       [userId, take],

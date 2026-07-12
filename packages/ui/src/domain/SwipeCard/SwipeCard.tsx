@@ -18,6 +18,8 @@ export interface SwipeCardProfile {
   distanceKm?: number;
   bio?: string;
   gender?: CardGender;
+  /** This person already super-liked the viewer — highlight the card. */
+  superLikedYou?: boolean;
 }
 
 const GENDER_BADGE: Record<CardGender, { icon: string; label: string }> = {
@@ -94,7 +96,7 @@ export const SwipeCard = forwardRef<SwipeCardHandle, SwipeCardProps>(function Sw
 
   return (
     <motion.div
-      className={cn(styles.card, className)}
+      className={cn(styles.card, profile.superLikedYou && styles.superLiked, className)}
       style={{ x, y, rotate }}
       drag={!gone}
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
@@ -107,6 +109,12 @@ export const SwipeCard = forwardRef<SwipeCardHandle, SwipeCardProps>(function Sw
     >
       {cover && <img className={styles.photo} src={cover} alt={profile.name} />}
       <div className={styles.gradient} />
+
+      {profile.superLikedYou && (
+        <div className={styles.superBadge} data-testid="super-badge">
+          <span aria-hidden="true">★</span> Вас суперлайкнули
+        </div>
+      )}
 
       <motion.span
         className={cn(styles.stamp, styles.stampLike)}
