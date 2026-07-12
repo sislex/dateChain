@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 import { ChatPage } from "../features/chat/ChatPage";
 import { MatchesPage } from "../features/chat/MatchesPage";
+import { DatesPage } from "../features/dates/DatesPage";
 import { DiscoveryPage } from "../features/discovery/DiscoveryPage";
 import { DiscoverySettingsPage } from "../features/discovery/DiscoverySettingsPage";
 import { OnboardingFlow } from "../features/onboarding/OnboardingFlow";
@@ -31,6 +32,7 @@ export function App() {
         <Route path="likes" element={<PlaceholderPage title="Лайки" />} />
         <Route path="chats" element={<MatchesPage />} />
         <Route path="chats/:matchId" element={<ChatPage />} />
+        <Route path="dates" element={<DatesPage />} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/app" replace />} />
