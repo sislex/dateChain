@@ -98,6 +98,17 @@ export const adminApi = baseApi.injectEndpoints({
       query: () => "/admin/audit",
       providesTags: ["Audit"],
     }),
+    getServiceWallet: build.query<{ address: string; balance: string; feeBps: number }, void>({
+      query: () => "/admin/service-wallet",
+      providesTags: ["ServiceWallet"],
+    }),
+    setServiceWallet: build.mutation<
+      { address: string; balance: string; feeBps: number },
+      { address: string }
+    >({
+      query: ({ address }) => ({ url: "/admin/service-wallet", method: "PUT", body: { address } }),
+      invalidatesTags: ["ServiceWallet"],
+    }),
     getSettings: build.query<Array<{ key: string; value: unknown }>, void>({
       query: () => "/admin/settings",
       providesTags: ["Settings"],
@@ -124,4 +135,6 @@ export const {
   useAuditQuery,
   useGetSettingsQuery,
   useSetSettingMutation,
+  useGetServiceWalletQuery,
+  useSetServiceWalletMutation,
 } = adminApi;

@@ -88,6 +88,41 @@ export class EnvironmentVariables {
   @IsOptional()
   AUTH_DEV_LOGIN = "false";
 
+  // ─── Blockchain (Hardhat local now, configurable for a real network) ───
+  @IsString()
+  @IsOptional()
+  CHAIN_RPC_URL = "http://127.0.0.1:8545";
+
+  @Type(() => Number)
+  @IsInt()
+  @IsOptional()
+  CHAIN_ID = 31337;
+
+  /** Treasury/owner private key (Hardhat account #0 by default) — mints & funds. */
+  @IsString()
+  @IsOptional()
+  TREASURY_PRIVKEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+
+  /** 32-byte hex key for AES-256-GCM encryption of custodial private keys (DEV). */
+  @IsString()
+  @IsOptional()
+  WALLET_ENC_KEY = "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f";
+
+  /** Starting DATE balance minted to each new custodial wallet (demo). */
+  @IsString()
+  @IsOptional()
+  WALLET_SEED_AMOUNT = "1000";
+
+  /** ETH sent to each custodial wallet to pay gas (demo). */
+  @IsString()
+  @IsOptional()
+  WALLET_GAS_ETH = "1";
+
+  /** Path to the contracts deployment file (addresses + ABIs). */
+  @IsString()
+  @IsOptional()
+  CONTRACTS_DEPLOYMENTS = "../../packages/contracts/deployments/localhost.json";
+
   @Type(() => Number)
   @IsInt()
   @IsOptional()

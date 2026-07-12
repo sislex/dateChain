@@ -20,6 +20,8 @@ const PHONE_B = "+79995550002"; // женщина, ищет мужчин
 const PHONE_C = "+79995550003"; // цель для дизлайка
 const PHONE_D = "+79995550004"; // отправитель суперлайка
 const PHONE_E = "+79995550005"; // получатель суперлайка
+const PHONE_F = "+79995550006"; // proposer свидания
+const PHONE_G = "+79995550007"; // invitee свидания
 
 // ── tiny assertion harness ────────────────────────────────────────────────
 let passed = 0;
@@ -119,12 +121,22 @@ async function main(): Promise<void> {
   const ee = await api<AuthResult>("POST", "/auth/otp/verify", {
     body: { channel: "phone", identifier: PHONE_E, code: "000000" },
   });
+  const ff = await api<AuthResult>("POST", "/auth/otp/verify", {
+    body: { channel: "phone", identifier: PHONE_F, code: "000000" },
+  });
+  const gg = await api<AuthResult>("POST", "/auth/otp/verify", {
+    body: { channel: "phone", identifier: PHONE_G, code: "000000" },
+  });
   const C = { id: userId(c), token: c.body.tokens.accessToken };
   const D = { id: userId(dd), token: dd.body.tokens.accessToken };
   const E = { id: userId(ee), token: ee.body.tokens.accessToken };
-  const ids = [A.id, B.id, C.id, D.id, E.id];
+  const F = { id: userId(ff), token: ff.body.tokens.accessToken };
+  const G = { id: userId(gg), token: gg.body.tokens.accessToken };
+  const ids = [A.id, B.id, C.id, D.id, E.id, F.id, G.id];
 
   // Clean prior scenario data for deterministic re-runs.
+  await db(`DELETE FROM ratings WHERE "raterId" = ANY($1) OR "rateeId" = ANY($1)`, [ids]);
+  await db(`DELETE FROM dates WHERE "proposerId" = ANY($1) OR "inviteeId" = ANY($1)`, [ids]);
   await db(
     `DELETE FROM messages WHERE "matchId" IN (
        SELECT id FROM matches WHERE "userAId" = ANY($1) OR "userBId" = ANY($1))`,
@@ -344,6 +356,86 @@ async function main(): Promise<void> {
     body: { targetId: B.id, action: "LIKE" },
   });
   check("Повторный свайп A→B → duplicate:true", dupSwipe.body.duplicate === true);
+
+  // ── Scenario 8: crypto escrow date (wallet, propose→accept→confirm, rating) ─
+  section("Сценарий 8 — свидание за токены (кошелёк, эскроу 80/20, рейтинг)");
+  const balance = async (token: string): Promise<number> => {
+    const w = await api<{ balance: string }>("GET", "/wallet", { token });
+    return Number(w.body.balance);
+  };
+  // Provision + read wallets.
+  const fWallet = await api<{ address: string; balance: string }>("GET", "/wallet", {
+    token: F.token,
+  });
+  check("GET /wallet выдаёт адрес и баланс DATE", Boolean(fWallet.body.address) && Number(fWallet.body.balance) > 0);
+  await balance(G.token); // provision G
+
+  const fBefore = await balance(F.token);
+  const gBefore = await balance(G.token);
+
+  const propose = await api<{ id: string; status: string }>("POST", "/dates", {
+    token: F.token,
+    body: { inviteeId: G.id, amount: 100, message: "Кофе?" },
+  });
+  check("F предлагает свидание → PROPOSED", propose.body.status === "PROPOSED");
+  const dateId = propose.body.id;
+  check("После propose баланс F не изменился (заморозки нет)", (await balance(F.token)) === fBefore);
+  check("Уведомление DATE_PROPOSED получателю G", await waitNotif(G.token, "DATE_PROPOSED"));
+
+  const accept = await api<{ status: string }>("POST", `/dates/${dateId}/accept`, { token: G.token });
+  check("G соглашается → ACCEPTED", accept.body.status === "ACCEPTED");
+  check("После accept у F заморожено 100 (−100)", (await balance(F.token)) === fBefore - 100);
+  check("Уведомление DATE_ACCEPTED инициатору F", await waitNotif(F.token, "DATE_ACCEPTED"));
+
+  const confirm = await api<{ status: string }>("POST", `/dates/${dateId}/confirm`, { token: F.token });
+  check("F подтверждает → CONFIRMED", confirm.body.status === "CONFIRMED");
+  check("G получил 80% (+80)", (await balance(G.token)) === gBefore + 80);
+  check("F потратил ровно 100 суммарно", (await balance(F.token)) === fBefore - 100);
+  check("Уведомление DATE_CONFIRMED получателю G", await waitNotif(G.token, "DATE_CONFIRMED"));
+
+  // Rating after confirmed date.
+  const rate = await api<{ score: number }>("POST", `/dates/${dateId}/rating`, {
+    token: F.token,
+    body: { score: 5, comment: "Супер!" },
+  });
+  check("F оценивает G после свидания (5)", rate.body.score === 5);
+  const gRating = await api<{ average: number; count: number }>("GET", `/users/${G.id}/rating`, {
+    token: F.token,
+  });
+  check("Средний рейтинг G учитывает оценку", gRating.body.average === 5 && gRating.body.count >= 1);
+  const rateEarly = await api("POST", `/dates/${dateId}/rating`, {
+    token: F.token,
+    body: { score: 3 },
+  });
+  check("Повторная оценка того же свидания → 409", rateEarly.status === 409, `status=${rateEarly.status}`);
+
+  const datesF = await api<Array<{ id: string; role: string; status: string }>>("GET", "/dates", {
+    token: F.token,
+  });
+  check(
+    "GET /dates (F) показывает свидание как proposer/CONFIRMED",
+    datesF.body.some((d) => d.id === dateId && d.role === "proposer" && d.status === "CONFIRMED"),
+  );
+
+  // ── Scenario 9: cancel after acceptance charges the 20% penalty ──────────
+  section("Сценарий 9 — отмена после согласия (штраф 20%)");
+  const fBefore2 = await balance(F.token);
+  const gBefore2 = await balance(G.token);
+  const propose2 = await api<{ id: string }>("POST", "/dates", {
+    token: F.token,
+    body: { inviteeId: G.id, amount: 200 },
+  });
+  const dateId2 = propose2.body.id;
+  await api("POST", `/dates/${dateId2}/accept`, { token: G.token });
+  check("После accept у F заморожено 200 (−200)", (await balance(F.token)) === fBefore2 - 200);
+  const cancel = await api<{ status: string }>("POST", `/dates/${dateId2}/cancel`, { token: F.token });
+  check("F отменяет → CANCELLED", cancel.body.status === "CANCELLED");
+  check("Штраф 20%: F потерял 40 (возврат 160)", (await balance(F.token)) === fBefore2 - 40);
+  check("G не получил ничего при отмене", (await balance(G.token)) === gBefore2);
+  check("Уведомление DATE_CANCELLED получателю G", await waitNotif(G.token, "DATE_CANCELLED"));
+
+  // Hide crypto scenario accounts from real decks.
+  await db(`UPDATE profiles SET discoverable = false WHERE "userId" = ANY($1)`, [[F.id, G.id]]);
 
   // ── Scenario 7: super like (notify + deck priority + flag) ───────────────
   section("Сценарий 7 — суперлайк (уведомление, приоритет, флаг)");

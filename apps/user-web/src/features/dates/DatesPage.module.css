@@ -1,0 +1,147 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dc-space-4);
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: var(--dc-space-4);
+  box-sizing: border-box;
+  font-family: var(--dc-font-family);
+  color: var(--dc-color-text);
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  padding: var(--dc-space-8);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--dc-font-size-xl);
+}
+
+.balance {
+  font-weight: var(--dc-font-weight-bold);
+  background: var(--dc-color-surface-alt);
+  padding: 6px 12px;
+  border-radius: var(--dc-radius-pill);
+}
+
+.muted {
+  color: var(--dc-color-text-secondary);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--dc-space-3);
+}
+
+.item {
+  border: 1px solid var(--dc-color-border);
+  border-radius: var(--dc-radius-md);
+  padding: var(--dc-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--dc-space-2);
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.name {
+  font-weight: var(--dc-font-weight-semibold);
+  font-size: var(--dc-font-size-md);
+}
+
+.amount {
+  font-weight: var(--dc-font-weight-bold);
+  color: var(--dc-color-like, #12b76a);
+}
+
+.meta {
+  display: flex;
+  gap: var(--dc-space-2);
+  align-items: center;
+  font-size: var(--dc-font-size-sm);
+}
+
+.status {
+  padding: 2px 8px;
+  border-radius: var(--dc-radius-pill);
+  font-weight: var(--dc-font-weight-semibold);
+  background: var(--dc-color-surface-alt);
+}
+
+.s_ACCEPTED {
+  background: rgba(30, 200, 255, 0.15);
+}
+.s_CONFIRMED {
+  background: rgba(18, 183, 106, 0.15);
+}
+.s_CANCELLED,
+.s_DECLINED {
+  background: rgba(198, 40, 40, 0.12);
+  color: #c62828;
+}
+
+.role {
+  color: var(--dc-color-text-secondary);
+}
+
+.message {
+  margin: 0;
+  color: var(--dc-color-text-secondary);
+  font-style: italic;
+}
+
+.hint {
+  margin: 0;
+  color: var(--dc-color-text-secondary);
+  font-size: var(--dc-font-size-sm);
+}
+
+.actions {
+  display: flex;
+  gap: var(--dc-space-2);
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ratingLabel {
+  font-size: var(--dc-font-size-sm);
+  color: var(--dc-color-text-secondary);
+  margin-right: var(--dc-space-1);
+}
+
+.star {
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--dc-color-superlike, #f5a623);
+  padding: 0 2px;
+}
+
+.star:disabled {
+  cursor: default;
+}

@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { DashboardPage } from "../features/DashboardPage";
 import { LoginPage } from "../features/LoginPage";
 import { ModerationPage } from "../features/ModerationPage";
+import { ServiceWalletPage } from "../features/ServiceWalletPage";
 import { UsersPage } from "../features/UsersPage";
 
 import { AdminLayout } from "./AdminLayout";
@@ -39,6 +40,14 @@ export function App() {
           element={
             <RoleGuard min={UserRole.Moderator}>
               <ModerationPage />
+            </RoleGuard>
+          }
+        />
+        <Route
+          path="service-wallet"
+          element={
+            <RoleGuard min={UserRole.Admin}>
+              <ServiceWalletPage />
             </RoleGuard>
           }
         />

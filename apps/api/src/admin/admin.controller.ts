@@ -6,7 +6,7 @@ import { CurrentUser, Roles, type AuthenticatedUser } from "../auth/decorators";
 import { UserStatus } from "../users/user.entity";
 
 import { AdminService } from "./admin.service";
-import { ResolveReportDto, SetSettingDto, SetStatusDto } from "./dto";
+import { ResolveReportDto, SetServiceWalletDto, SetSettingDto, SetStatusDto } from "./dto";
 
 @ApiTags("admin")
 @ApiBearerAuth("access-token")
@@ -78,6 +78,18 @@ export class AdminController {
   @Roles(UserRole.Admin)
   audit() {
     return this.admin.listAudit();
+  }
+
+  @Get("service-wallet")
+  @Roles(UserRole.Admin)
+  getServiceWallet() {
+    return this.admin.getServiceWallet();
+  }
+
+  @Put("service-wallet")
+  @Roles(UserRole.Admin)
+  setServiceWallet(@CurrentUser() actor: AuthenticatedUser, @Body() dto: SetServiceWalletDto) {
+    return this.admin.setServiceWallet(actor.userId, dto.address);
   }
 
   @Get("settings")

@@ -19,6 +19,7 @@ describe("AdminService", () => {
       countRepo(7) as never,
       {} as never,
       {} as never,
+      {} as never,
     );
     const metrics = await service.metrics();
     expect(metrics).toEqual({
@@ -48,6 +49,7 @@ describe("AdminService", () => {
       {} as never,
       {} as never,
       tokens as never,
+      {} as never,
       {} as never,
     );
 
