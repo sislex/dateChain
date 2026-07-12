@@ -1,0 +1,19 @@
+{
+  "name": "@datechain/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "chain:compile": "hardhat compile",
+    "chain:node": "hardhat node",
+    "chain:test": "hardhat test",
+    "chain:deploy": "hardhat run scripts/deploy.ts --network localhost",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "hardhat test"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/contracts": "^5.0.2",
+    "hardhat": "^2.22.10",
+    "typescript": "^5.4.5"
+  }
+}
