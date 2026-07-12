@@ -50,4 +50,16 @@ describe("SwipeCard imperative handle", () => {
     expect(screen.getByText("Alex")).toBeInTheDocument();
     expect(screen.getByText("27")).toBeInTheDocument();
   });
+
+  it("shows a gender badge when gender is provided", () => {
+    render(<SwipeCard profile={{ ...profile, gender: "WOMAN" }} onSwipe={jest.fn()} />);
+    expect(screen.getByText("Женщина")).toBeInTheDocument();
+  });
+
+  it("shows the super-like badge only when super-liked", () => {
+    const { rerender } = render(<SwipeCard profile={profile} onSwipe={jest.fn()} />);
+    expect(screen.queryByTestId("super-badge")).not.toBeInTheDocument();
+    rerender(<SwipeCard profile={{ ...profile, superLikedYou: true }} onSwipe={jest.fn()} />);
+    expect(screen.getByTestId("super-badge")).toBeInTheDocument();
+  });
 });

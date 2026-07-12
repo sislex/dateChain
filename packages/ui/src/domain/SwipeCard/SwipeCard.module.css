@@ -16,6 +16,31 @@
   cursor: grabbing;
 }
 
+.superLiked {
+  box-shadow:
+    0 0 0 3px var(--dc-color-superlike),
+    var(--dc-shadow-card);
+}
+
+.superBadge {
+  position: absolute;
+  top: var(--dc-space-3);
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--dc-radius-pill);
+  background: var(--dc-color-superlike);
+  color: #fff;
+  font-family: var(--dc-font-family);
+  font-size: var(--dc-font-size-xs);
+  font-weight: var(--dc-font-weight-bold);
+  letter-spacing: 0.02em;
+  z-index: 2;
+}
+
 .photo {
   position: absolute;
   inset: 0;
