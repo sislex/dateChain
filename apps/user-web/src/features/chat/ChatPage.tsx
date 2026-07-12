@@ -1,4 +1,4 @@
-import { Button, ChatBubble, Input, Spinner, TypingIndicator } from "@datechain/ui";
+import { Avatar, Button, ChatBubble, Input, Spinner, TypingIndicator } from "@datechain/ui";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -6,9 +6,11 @@ import { getSocket } from "../../socket/socketMiddleware";
 import { useSocketEvent } from "../../socket/useSocketEvent";
 import { useAppSelector } from "../../store";
 import { selectCurrentUser } from "../../store/authSlice";
+import { photoUrl } from "../discovery/discoveryApi";
 
 import styles from "./ChatPage.module.css";
 import {
+  useGetMatchPreviewsQuery,
   useGetMessagesQuery,
   useMarkReadMutation,
   useSendMessageMutation,
@@ -21,6 +23,8 @@ export function ChatPage() {
   const navigate = useNavigate();
   const me = useAppSelector(selectCurrentUser);
   const { data: history, isLoading } = useGetMessagesQuery(matchId, { skip: !matchId });
+  const { data: previews } = useGetMatchPreviewsQuery();
+  const partner = previews?.find((p) => p.matchId === matchId)?.partner;
   const [sendMessage, { isLoading: sending }] = useSendMessageMutation();
   const [markRead] = useMarkReadMutation();
   const [unmatch] = useUnmatchMutation();
@@ -90,14 +94,26 @@ export function ChatPage() {
   return (
     <div className={styles.page} data-testid="chat-page">
       <header className={styles.header}>
-        <button
-          type="button"
-          className={styles.back}
-          aria-label="Назад"
-          onClick={() => navigate("/app/chats")}
-        >
-          ‹
-        </button>
+        <div className={styles.partner}>
+          <button
+            type="button"
+            className={styles.back}
+            aria-label="Назад"
+            onClick={() => navigate("/app/chats")}
+          >
+            ‹
+          </button>
+          {partner && (
+            <>
+              <Avatar
+                name={partner.displayName}
+                src={partner.photoId ? photoUrl(partner.photoId, "thumb") : undefined}
+                size="sm"
+              />
+              <span className={styles.partnerName}>{partner.displayName}</span>
+            </>
+          )}
+        </div>
         <Button variant="ghost" size="sm" onClick={onUnmatch}>
           Отмэтчить
         </Button>
