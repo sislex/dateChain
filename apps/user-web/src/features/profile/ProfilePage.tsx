@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "../../store";
 import { logout as logoutAction } from "../../store/authSlice";
+import { baseApi } from "../../store/baseApi";
 import { useDeleteAccountMutation, useLogoutServerMutation } from "../auth/authApi";
 import { photoUrl } from "../discovery/discoveryApi";
 
@@ -95,6 +96,7 @@ export function ProfilePage() {
         .unwrap()
         .catch(() => undefined);
     dispatch(logoutAction());
+    dispatch(baseApi.util.resetApiState());
     navigate("/welcome", { replace: true });
   }
 
@@ -103,6 +105,7 @@ export function ProfilePage() {
       .unwrap()
       .catch(() => undefined);
     dispatch(logoutAction());
+    dispatch(baseApi.util.resetApiState());
     navigate("/welcome", { replace: true });
   }
 

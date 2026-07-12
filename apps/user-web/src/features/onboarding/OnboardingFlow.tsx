@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch } from "../../store";
 import { setCredentials } from "../../store/authSlice";
+import { baseApi } from "../../store/baseApi";
 import { useRequestOtpMutation, useVerifyOtpMutation } from "../auth/authApi";
 import { useUpsertProfileMutation } from "../profile/profileApi";
 
@@ -63,6 +64,8 @@ export function OnboardingFlow() {
         code: "000000",
       }).unwrap();
       dispatch(setCredentials({ ...result.tokens, user: result.user }));
+      // Drop any cached data from a previously logged-in account.
+      dispatch(baseApi.util.resetApiState());
       const hasProfile = await fetch("/api/profile/me", {
         headers: { Authorization: `Bearer ${result.tokens.accessToken}` },
       }).then((r) => r.ok);
@@ -79,6 +82,8 @@ export function OnboardingFlow() {
     try {
       const result = await verifyOtp({ channel: "phone", identifier: phone.trim(), code }).unwrap();
       dispatch(setCredentials({ ...result.tokens, user: result.user }));
+      // Drop any cached data from a previously logged-in account.
+      dispatch(baseApi.util.resetApiState());
       setStep("profile");
     } catch {
       setError("Неверный или просроченный код");
