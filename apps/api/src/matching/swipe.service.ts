@@ -11,7 +11,12 @@ import { EventEmitter2 } from "@nestjs/event-emitter";
 import { InjectRepository } from "@nestjs/typeorm";
 import { In, MoreThanOrEqual, Repository } from "typeorm";
 
-import { MATCH_CREATED, type MatchCreatedEvent } from "./events";
+import {
+  MATCH_CREATED,
+  SUPER_LIKE_SENT,
+  type MatchCreatedEvent,
+  type SuperLikeSentEvent,
+} from "./events";
 import { MatchService } from "./match.service";
 import { Swipe } from "./swipe.entity";
 
@@ -68,7 +73,16 @@ export class SwipeService {
     const reciprocal = await this.swipes.findOne({
       where: { actorId: targetId, targetId: actorId, action: In(LIKE_ACTIONS) },
     });
-    if (!reciprocal) return { matched: false };
+    if (!reciprocal) {
+      // No match yet: a Super Like still notifies the recipient (Tinder-style).
+      if (action === SwipeAction.SuperLike) {
+        this.events.emit(SUPER_LIKE_SENT, {
+          fromUserId: actorId,
+          toUserId: targetId,
+        } satisfies SuperLikeSentEvent);
+      }
+      return { matched: false };
+    }
 
     const match = await this.matches.createForPair(actorId, targetId);
     this.events.emit(MATCH_CREATED, {

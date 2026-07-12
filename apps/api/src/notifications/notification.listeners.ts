@@ -2,7 +2,12 @@ import { Injectable } from "@nestjs/common";
 import { OnEvent } from "@nestjs/event-emitter";
 
 import { MESSAGE_CREATED, type MessageCreatedEvent } from "../chat/events";
-import { MATCH_CREATED, type MatchCreatedEvent } from "../matching/events";
+import {
+  MATCH_CREATED,
+  SUPER_LIKE_SENT,
+  type MatchCreatedEvent,
+  type SuperLikeSentEvent,
+} from "../matching/events";
 
 import { NotificationType } from "./notification.entity";
 import { NotificationService } from "./notification.service";
@@ -18,6 +23,13 @@ export class NotificationListeners {
       this.notifications.create(event.userAId, NotificationType.Match, { matchId: event.matchId }),
       this.notifications.create(event.userBId, NotificationType.Match, { matchId: event.matchId }),
     ]);
+  }
+
+  @OnEvent(SUPER_LIKE_SENT)
+  async onSuperLike(event: SuperLikeSentEvent): Promise<void> {
+    await this.notifications.create(event.toUserId, NotificationType.SuperLike, {
+      fromUserId: event.fromUserId,
+    });
   }
 
   @OnEvent(MESSAGE_CREATED)

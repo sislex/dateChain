@@ -18,6 +18,8 @@ export interface DeckCandidate {
   bio: string | null;
   interests: string[];
   photos: DeckPhoto[];
+  /** True when this candidate has already super-liked the viewer. */
+  superLikedYou: boolean;
 }
 
 export interface DeckRow {
@@ -28,6 +30,7 @@ export interface DeckRow {
   distance_km: string | number;
   bio: string | null;
   interests: string | null;
+  super_liked_you: boolean;
 }
 
 /** Maps a raw discovery SQL row + its photos into a typed candidate card. */
@@ -41,5 +44,6 @@ export function toDeckCandidate(row: DeckRow, photos: DeckPhoto[]): DeckCandidat
     bio: row.bio,
     interests: row.interests ? row.interests.split(",").filter(Boolean) : [],
     photos: [...photos].sort((a, b) => a.position - b.position),
+    superLikedYou: Boolean(row.super_liked_you),
   };
 }
