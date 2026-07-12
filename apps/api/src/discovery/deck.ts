@@ -7,9 +7,12 @@ export interface DeckPhoto {
   height: number;
 }
 
+export type DeckGender = "MAN" | "WOMAN" | "MORE";
+
 export interface DeckCandidate {
   userId: string;
   displayName: string;
+  gender: DeckGender;
   age: number;
   distanceKm: number;
   bio: string | null;
@@ -20,6 +23,7 @@ export interface DeckCandidate {
 export interface DeckRow {
   userId: string;
   displayName: string;
+  gender: DeckGender;
   age: string | number;
   distance_km: string | number;
   bio: string | null;
@@ -31,6 +35,7 @@ export function toDeckCandidate(row: DeckRow, photos: DeckPhoto[]): DeckCandidat
   return {
     userId: row.userId,
     displayName: row.displayName,
+    gender: row.gender,
     age: Math.trunc(Number(row.age)),
     distanceKm: Math.round(Number(row.distance_km)),
     bio: row.bio,

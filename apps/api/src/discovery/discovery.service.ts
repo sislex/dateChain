@@ -30,7 +30,7 @@ export class DiscoveryService {
 
     const rows: DeckRow[] = await this.profiles.query(
       `
-      SELECT p."userId", p."displayName", p.bio, p.interests,
+      SELECT p."userId", p."displayName", p.gender, p.bio, p.interests,
              date_part('year', age(p."birthDate")) AS age,
              ST_Distance(p.location, v.location) / 1000.0 AS distance_km
       FROM profiles p

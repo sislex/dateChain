@@ -14,6 +14,7 @@ export interface DeckPhoto {
 export interface DeckCandidate {
   userId: string;
   displayName: string;
+  gender: "MAN" | "WOMAN" | "MORE";
   age: number;
   distanceKm: number;
   bio: string | null;
