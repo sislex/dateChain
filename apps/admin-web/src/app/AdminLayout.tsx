@@ -22,6 +22,13 @@ const ITEMS: AdminNavItem[] = [
     path: "/admin/moderation",
     min: UserRole.Moderator,
   },
+  {
+    id: "service-wallet",
+    label: "Кошелёк сервиса",
+    icon: "💰",
+    path: "/admin/service-wallet",
+    min: UserRole.Admin,
+  },
   { id: "audit", label: "Аудит", icon: "📜", path: "/admin/audit", min: UserRole.Admin },
 ];
 
