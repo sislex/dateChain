@@ -6,6 +6,7 @@ import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { AdminModule } from "./admin/admin.module";
+import { AuditModule } from "./audit/audit.module";
 import { AuthModule } from "./auth/auth.module";
 import { JwtAuthGuard, RolesGuard } from "./auth/guards";
 import { ChainModule } from "./chain/chain.module";
@@ -57,6 +58,7 @@ import { WalletModule } from "./wallet/wallet.module";
     }),
     RedisModule,
     ChainModule,
+    AuditModule,
     UsersModule,
     AuthModule,
     WalletModule,
