@@ -75,23 +75,28 @@ export function DatesPage() {
             {d.message && <p className={styles.message}>«{d.message}»</p>}
 
             {renderActions(d, act, acting)}
-            {d.status === "CONFIRMED" && (
-              <div className={styles.rating} data-testid="rating">
-                <span className={styles.ratingLabel}>Оценка:</span>
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    className={styles.star}
-                    aria-label={`Оценить на ${s}`}
-                    disabled={Boolean(rated[d.id])}
-                    onClick={() => rate(d.id, s)}
-                  >
-                    {s <= (rated[d.id] ?? 0) ? "★" : "☆"}
-                  </button>
-                ))}
-              </div>
-            )}
+            {d.status === "CONFIRMED" &&
+              (() => {
+                const score = d.myRating ?? rated[d.id] ?? 0;
+                const done = d.myRating != null || Boolean(rated[d.id]);
+                return (
+                  <div className={styles.rating} data-testid="rating">
+                    <span className={styles.ratingLabel}>{done ? "Ваша оценка:" : "Оценка:"}</span>
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        className={styles.star}
+                        aria-label={`Оценить на ${s}`}
+                        disabled={done}
+                        onClick={() => rate(d.id, s)}
+                      >
+                        {s <= score ? "★" : "☆"}
+                      </button>
+                    ))}
+                  </div>
+                );
+              })()}
           </li>
         ))}
       </ul>

@@ -15,6 +15,7 @@ import { MatchService } from "../matching/match.service";
 import { NotificationType } from "../notifications/notification.entity";
 import { NotificationService } from "../notifications/notification.service";
 import { Profile } from "../profiles/profile.entity";
+import { Rating } from "../ratings/rating.entity";
 import { WalletService } from "../wallet/wallet.service";
 
 import { DateEntity, DateStatus } from "./date.entity";
@@ -27,6 +28,8 @@ export interface DateView {
   message: string | null;
   counterpart: { userId: string; displayName: string | null };
   matchId: string | null;
+  /** The score the viewer already gave for this date (null if not rated). */
+  myRating: number | null;
   createdAt: Date;
 }
 
@@ -35,6 +38,7 @@ export class DatesService {
   constructor(
     @InjectRepository(DateEntity) private readonly dates: Repository<DateEntity>,
     @InjectRepository(Profile) private readonly profiles: Repository<Profile>,
+    @InjectRepository(Rating) private readonly ratings: Repository<Rating>,
     private readonly chain: ChainService,
     private readonly wallets: WalletService,
     private readonly matches: MatchService,
@@ -262,11 +266,16 @@ export class DatesService {
   }
 
   private async toViews(rows: DateEntity[], viewerId: string): Promise<DateView[]> {
+    if (rows.length === 0) return [];
     const counterpartIds = rows.map((d) => (d.proposerId === viewerId ? d.inviteeId : d.proposerId));
-    const profiles = counterpartIds.length
-      ? await this.profiles.find({ where: { userId: In(counterpartIds) } })
-      : [];
+    const profiles = await this.profiles.find({ where: { userId: In(counterpartIds) } });
     const nameByUser = new Map(profiles.map((p) => [p.userId, p.displayName]));
+
+    const myRatings = await this.ratings.find({
+      where: { dateId: In(rows.map((d) => d.id)), raterId: viewerId },
+    });
+    const scoreByDate = new Map(myRatings.map((r) => [r.dateId, r.score]));
+
     return rows.map((d) => {
       const isProposer = d.proposerId === viewerId;
       const counterpartId = isProposer ? d.inviteeId : d.proposerId;
@@ -278,6 +287,7 @@ export class DatesService {
         message: d.message,
         counterpart: { userId: counterpartId, displayName: nameByUser.get(counterpartId) ?? null },
         matchId: d.matchId,
+        myRating: scoreByDate.get(d.id) ?? null,
         createdAt: d.createdAt,
       };
     });

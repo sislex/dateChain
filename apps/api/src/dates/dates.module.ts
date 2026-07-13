@@ -4,6 +4,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { MatchingModule } from "../matching/matching.module";
 import { NotificationsModule } from "../notifications/notifications.module";
 import { Profile } from "../profiles/profile.entity";
+import { Rating } from "../ratings/rating.entity";
 import { WalletModule } from "../wallet/wallet.module";
 
 import { DateEntity } from "./date.entity";
@@ -12,7 +13,7 @@ import { DatesService } from "./dates.service";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([DateEntity, Profile]),
+    TypeOrmModule.forFeature([DateEntity, Profile, Rating]),
     WalletModule,
     MatchingModule,
     NotificationsModule,

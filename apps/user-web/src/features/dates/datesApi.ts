@@ -17,6 +17,7 @@ export interface DateView {
   message: string | null;
   counterpart: { userId: string; displayName: string | null };
   matchId: string | null;
+  myRating: number | null;
   createdAt: string;
 }
 

@@ -1,6 +1,7 @@
 import { BottomNav, SideNav, Logo, type NavItem } from "@datechain/ui";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
+import { NotificationsBell } from "../features/notifications/NotificationsBell";
 import { useBreakpoint } from "../hooks/useBreakpoint";
 
 import styles from "./AppLayout.module.css";
@@ -36,6 +37,7 @@ export function AppLayout() {
         </aside>
       )}
       <main className={styles.content}>
+        <NotificationsBell />
         <Outlet />
       </main>
       {isMobile && (
