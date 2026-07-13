@@ -2,6 +2,7 @@ import { Avatar, MatchListItem, Spinner } from "@datechain/ui";
 import { useNavigate } from "react-router-dom";
 
 import { useSocketEvent } from "../../socket/useSocketEvent";
+import { ProposeDateButton } from "../dates/ProposeDateButton";
 import { photoUrl } from "../discovery/discoveryApi";
 
 import styles from "./MatchesPage.module.css";
@@ -43,20 +44,26 @@ export function MatchesPage() {
           <h3 className={styles.sectionTitle}>Новые мэтчи</h3>
           <div className={styles.lane}>
             {fresh.map((m) => (
-              <button
-                key={m.matchId}
-                type="button"
-                className={styles.laneItem}
-                onClick={() => navigate(`/app/chats/${m.matchId}`)}
-              >
-                <Avatar
-                  name={m.partner.displayName}
-                  src={m.partner.photoId ? photoUrl(m.partner.photoId, "thumb") : undefined}
-                  size="lg"
-                  ring
+              <div key={m.matchId} className={styles.laneItem}>
+                <button
+                  type="button"
+                  className={styles.laneButton}
+                  onClick={() => navigate(`/app/chats/${m.matchId}`)}
+                >
+                  <Avatar
+                    name={m.partner.displayName}
+                    src={m.partner.photoId ? photoUrl(m.partner.photoId, "thumb") : undefined}
+                    size="lg"
+                    ring
+                  />
+                  <span className={styles.laneName}>{m.partner.displayName}</span>
+                </button>
+                <ProposeDateButton
+                  inviteeId={m.partner.userId}
+                  inviteeName={m.partner.displayName}
+                  label="💎"
                 />
-                <span className={styles.laneName}>{m.partner.displayName}</span>
-              </button>
+              </div>
             ))}
           </div>
         </section>
@@ -66,14 +73,22 @@ export function MatchesPage() {
         <h3 className={styles.sectionTitle}>Сообщения</h3>
         {conversations.length === 0 && <p className={styles.muted}>Напишите первым 👋</p>}
         {conversations.map((m) => (
-          <MatchListItem
-            key={m.matchId}
-            name={m.partner.displayName}
-            photo={m.partner.photoId ? photoUrl(m.partner.photoId, "thumb") : undefined}
-            preview={m.lastMessage?.text ?? ""}
-            unread={m.unreadCount > 0}
-            onClick={() => navigate(`/app/chats/${m.matchId}`)}
-          />
+          <div key={m.matchId} className={styles.conversationRow}>
+            <div className={styles.conversationItem}>
+              <MatchListItem
+                name={m.partner.displayName}
+                photo={m.partner.photoId ? photoUrl(m.partner.photoId, "thumb") : undefined}
+                preview={m.lastMessage?.text ?? ""}
+                unread={m.unreadCount > 0}
+                onClick={() => navigate(`/app/chats/${m.matchId}`)}
+              />
+            </div>
+            <ProposeDateButton
+              inviteeId={m.partner.userId}
+              inviteeName={m.partner.displayName}
+              label="💎"
+            />
+          </div>
         ))}
       </section>
     </div>

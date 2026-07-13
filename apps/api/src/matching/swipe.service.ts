@@ -106,4 +106,57 @@ export class SwipeService {
     await this.swipes.delete({ id: last.id });
     return { rewound: true, targetId: last.targetId };
   }
+
+  /**
+   * People who liked (or super-liked) the user and haven't been swiped back yet —
+   * the "Likes you" list. Includes the main photo for a card preview.
+   */
+  async incomingLikes(userId: string): Promise<IncomingLike[]> {
+    const rows: Array<{
+      userId: string;
+      displayName: string;
+      gender: string;
+      age: string | number;
+      photoId: string | null;
+      action: string;
+    }> = await this.swipes.query(
+      `
+      SELECT s."actorId" AS "userId", p."displayName", p.gender,
+             date_part('year', age(p."birthDate")) AS age,
+             ph.id AS "photoId", s.action
+      FROM swipes s
+      JOIN profiles p ON p."userId" = s."actorId"
+      LEFT JOIN photos ph ON ph."userId" = s."actorId" AND ph."isMain" = true
+      WHERE s."targetId" = $1
+        AND s.action IN ('LIKE','SUPER_LIKE')
+        AND NOT EXISTS (
+          SELECT 1 FROM swipes me WHERE me."actorId" = $1 AND me."targetId" = s."actorId"
+        )
+        AND NOT EXISTS (
+          SELECT 1 FROM blocks b
+          WHERE (b."blockerId" = $1 AND b."blockedId" = s."actorId")
+             OR (b."blockerId" = s."actorId" AND b."blockedId" = $1)
+        )
+      ORDER BY s.action DESC, s."createdAt" DESC
+      `,
+      [userId],
+    );
+    return rows.map((r) => ({
+      userId: r.userId,
+      displayName: r.displayName,
+      gender: r.gender,
+      age: Math.trunc(Number(r.age)),
+      photoId: r.photoId,
+      superLike: r.action === "SUPER_LIKE",
+    }));
+  }
+}
+
+export interface IncomingLike {
+  userId: string;
+  displayName: string;
+  gender: string;
+  age: number;
+  photoId: string | null;
+  superLike: boolean;
 }

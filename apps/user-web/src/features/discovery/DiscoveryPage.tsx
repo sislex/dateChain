@@ -1,9 +1,9 @@
-import { ActionBar, Button, Input, MatchScreen, Modal, Spinner, SwipeCard } from "@datechain/ui";
+import { ActionBar, Button, MatchScreen, Spinner, SwipeCard } from "@datechain/ui";
 import type { SwipeCardHandle, SwipeDirection } from "@datechain/ui";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useProposeDateMutation } from "../dates/datesApi";
+import { ProposeDateButton } from "../dates/ProposeDateButton";
 import { useListPhotosQuery } from "../profile/profileApi";
 
 import styles from "./DiscoveryPage.module.css";
@@ -35,33 +35,8 @@ export function DiscoveryPage() {
   const [index, setIndex] = useState(0);
   const [match, setMatch] = useState<MatchInfo | null>(null);
   const [limitReached, setLimitReached] = useState(false);
-  const [proposeOpen, setProposeOpen] = useState(false);
-  const [amount, setAmount] = useState("50");
-  const [dateMessage, setDateMessage] = useState("");
-  const [proposeError, setProposeError] = useState<string | null>(null);
-  const [proposeDate, { isLoading: proposing }] = useProposeDateMutation();
 
   const candidate = deck?.[index];
-
-  async function submitProposal() {
-    if (!candidate) return;
-    setProposeError(null);
-    const amt = Number(amount);
-    if (!Number.isInteger(amt) || amt < 1) return setProposeError("Введите сумму (целое ≥ 1)");
-    try {
-      await proposeDate({
-        inviteeId: candidate.userId,
-        amount: amt,
-        message: dateMessage.trim() || undefined,
-      }).unwrap();
-      setProposeOpen(false);
-      setDateMessage("");
-      navigate("/app/dates");
-    } catch (err) {
-      const data = (err as { data?: { message?: string } }).data;
-      setProposeError(data?.message ?? "Не удалось предложить свидание");
-    }
-  }
 
   async function handleSwipe(direction: SwipeDirection, targetId: string) {
     const current = deck?.find((c) => c.userId === targetId);
@@ -149,36 +124,13 @@ export function DiscoveryPage() {
         onSuperLike={() => cardRef.current?.swipe("superlike")}
         onLike={() => cardRef.current?.swipe("like")}
       />
-      <Button variant="secondary" fullWidth onClick={() => setProposeOpen(true)}>
-        💎 Предложить свидание за токены
-      </Button>
-
-      <Modal
-        open={proposeOpen}
-        onClose={() => setProposeOpen(false)}
-        title={`Свидание с ${candidate.displayName}`}
-      >
-        <Input
-          label="Сумма (DATE)"
-          type="number"
-          inputMode="numeric"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-        />
-        <Input
-          label="Сообщение (необязательно)"
-          value={dateMessage}
-          onChange={(e) => setDateMessage(e.target.value)}
-          error={proposeError ?? undefined}
-        />
-        <p className={styles.emptyText}>
-          Токены заморозятся после согласия. При подтверждении 80% получит партнёр, 20% — комиссия
-          сервиса.
-        </p>
-        <Button fullWidth size="lg" disabled={proposing} onClick={submitProposal}>
-          Предложить
-        </Button>
-      </Modal>
+      <ProposeDateButton
+        inviteeId={candidate.userId}
+        inviteeName={candidate.displayName}
+        label="💎 Предложить свидание за токены"
+        size="lg"
+        fullWidth
+      />
       {matchOverlay}
     </div>
   );

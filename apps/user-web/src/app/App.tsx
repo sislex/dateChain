@@ -5,9 +5,9 @@ import { MatchesPage } from "../features/chat/MatchesPage";
 import { DatesPage } from "../features/dates/DatesPage";
 import { DiscoveryPage } from "../features/discovery/DiscoveryPage";
 import { DiscoverySettingsPage } from "../features/discovery/DiscoverySettingsPage";
+import { LikesPage } from "../features/likes/LikesPage";
 import { OnboardingFlow } from "../features/onboarding/OnboardingFlow";
 import { ProfilePage } from "../features/profile/ProfilePage";
-import { PlaceholderPage } from "../pages/PlaceholderPage";
 import { WelcomePage } from "../pages/WelcomePage";
 
 import { AppLayout } from "./AppLayout";
@@ -29,7 +29,7 @@ export function App() {
         <Route index element={<Navigate to="discovery" replace />} />
         <Route path="discovery" element={<DiscoveryPage />} />
         <Route path="discovery/settings" element={<DiscoverySettingsPage />} />
-        <Route path="likes" element={<PlaceholderPage title="Лайки" />} />
+        <Route path="likes" element={<LikesPage />} />
         <Route path="chats" element={<MatchesPage />} />
         <Route path="chats/:matchId" element={<ChatPage />} />
         <Route path="dates" element={<DatesPage />} />

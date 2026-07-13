@@ -37,6 +37,7 @@ export const discoveryApi = baseApi.injectEndpoints({
     }),
     swipe: build.mutation<SwipeResult, { targetId: string; action: SwipeAction }>({
       query: (body) => ({ url: "/swipes", method: "POST", body }),
+      invalidatesTags: ["Like", "Match"],
     }),
   }),
 });

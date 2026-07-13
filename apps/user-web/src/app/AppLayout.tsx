@@ -7,6 +7,7 @@ import styles from "./AppLayout.module.css";
 
 const NAV_ITEMS: NavItem[] = [
   { id: "discovery", label: "Discovery", icon: "🔥" },
+  { id: "likes", label: "Лайки", icon: "★" },
   { id: "chats", label: "Чаты", icon: "💬" },
   { id: "dates", label: "Свидания", icon: "💎" },
   { id: "profile", label: "Профиль", icon: "👤" },
