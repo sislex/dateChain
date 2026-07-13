@@ -16,4 +16,10 @@ export class WalletController {
   me(@CurrentUser() user: AuthenticatedUser) {
     return this.wallet.getView(user.userId);
   }
+
+  /** The current user's DATE transactions (on-chain token transfers). */
+  @Get("transactions")
+  transactions(@CurrentUser() user: AuthenticatedUser) {
+    return this.wallet.transactions(user.userId);
+  }
 }

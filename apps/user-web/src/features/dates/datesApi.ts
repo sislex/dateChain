@@ -25,10 +25,23 @@ export interface RatingSummary {
   count: number;
 }
 
+export interface WalletTx {
+  hash: string;
+  direction: "in" | "out";
+  amount: string;
+  counterparty: string;
+  label: string;
+  blockNumber: number;
+}
+
 export const datesApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     getWallet: build.query<WalletView, void>({
       query: () => "/wallet",
+      providesTags: ["Wallet"],
+    }),
+    getWalletTransactions: build.query<WalletTx[], void>({
+      query: () => "/wallet/transactions",
       providesTags: ["Wallet"],
     }),
     getDates: build.query<DateView[], void>({
@@ -59,6 +72,7 @@ export const datesApi = baseApi.injectEndpoints({
 
 export const {
   useGetWalletQuery,
+  useGetWalletTransactionsQuery,
   useGetDatesQuery,
   useProposeDateMutation,
   useDateActionMutation,

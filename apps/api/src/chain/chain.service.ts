@@ -55,6 +55,14 @@ export class ChainService implements OnModuleInit {
     return this.dep.serviceWallet;
   }
 
+  get treasuryAddress(): string {
+    return this.dep.treasury;
+  }
+
+  get escrowAddress(): string {
+    return this.dep.escrow.address;
+  }
+
   get feeBps(): number {
     return this.dep.feeBps;
   }

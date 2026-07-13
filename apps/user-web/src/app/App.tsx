@@ -8,6 +8,7 @@ import { DiscoverySettingsPage } from "../features/discovery/DiscoverySettingsPa
 import { LikesPage } from "../features/likes/LikesPage";
 import { OnboardingFlow } from "../features/onboarding/OnboardingFlow";
 import { ProfilePage } from "../features/profile/ProfilePage";
+import { WalletPage } from "../features/wallet/WalletPage";
 import { WelcomePage } from "../pages/WelcomePage";
 
 import { AppLayout } from "./AppLayout";
@@ -33,6 +34,7 @@ export function App() {
         <Route path="chats" element={<MatchesPage />} />
         <Route path="chats/:matchId" element={<ChatPage />} />
         <Route path="dates" element={<DatesPage />} />
+        <Route path="wallet" element={<WalletPage />} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/app" replace />} />

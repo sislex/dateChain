@@ -10,6 +10,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: "likes", label: "Лайки", icon: "★" },
   { id: "chats", label: "Чаты", icon: "💬" },
   { id: "dates", label: "Свидания", icon: "💎" },
+  { id: "wallet", label: "Кошелёк", icon: "💰" },
   { id: "profile", label: "Профиль", icon: "👤" },
 ];
 
