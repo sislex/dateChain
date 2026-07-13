@@ -2,6 +2,7 @@ import { Injectable, ServiceUnavailableException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import {
+  EventLog,
   Wallet as EthWallet,
   formatUnits,
   parseEther,
@@ -22,6 +23,15 @@ export interface WalletView {
   /** Raw balance in base units (wei), as a string. */
   balanceRaw: string;
   symbol: string;
+}
+
+export interface WalletTx {
+  hash: string;
+  direction: "in" | "out";
+  amount: string;
+  counterparty: string;
+  label: string;
+  blockNumber: number;
 }
 
 @Injectable()
@@ -96,5 +106,49 @@ export class WalletService {
       balanceRaw: raw.toString(),
       symbol: "DATE",
     };
+  }
+
+  /** The user's DATE token movements (on-chain Transfer events), newest first. */
+  async transactions(userId: string): Promise<WalletTx[]> {
+    const wallet = await this.getOrProvision(userId);
+    const addr = wallet.address.toLowerCase();
+    const token = this.chain.token();
+    const [sent, received] = await Promise.all([
+      token.queryFilter(token.filters.Transfer(wallet.address)),
+      token.queryFilter(token.filters.Transfer(null, wallet.address)),
+    ]);
+
+    const escrow = this.chain.escrowAddress.toLowerCase();
+    const service = (await this.chain.escrow().serviceWallet()).toLowerCase();
+    const treasury = this.chain.treasuryAddress.toLowerCase();
+    const label = (counterparty: string, outgoing: boolean): string => {
+      if (counterparty === escrow) return outgoing ? "Заморозка в эскроу" : "Из эскроу (выплата/возврат)";
+      if (counterparty === service) return "Комиссия сервиса";
+      if (counterparty === treasury) return "Пополнение сервисом";
+      return outgoing ? "Отправлено" : "Получено";
+    };
+
+    const seen = new Set<string>();
+    const txs: WalletTx[] = [];
+    for (const ev of [...sent, ...received]) {
+      if (!(ev instanceof EventLog)) continue;
+      const key = `${ev.transactionHash}:${ev.index}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const from = String(ev.args.from).toLowerCase();
+      const to = String(ev.args.to).toLowerCase();
+      const outgoing = from === addr;
+      const counterparty = outgoing ? to : from;
+      txs.push({
+        hash: ev.transactionHash,
+        direction: outgoing ? "out" : "in",
+        amount: formatUnits(ev.args.value as bigint, 18),
+        counterparty,
+        label: label(counterparty, outgoing),
+        blockNumber: ev.blockNumber,
+      });
+    }
+    txs.sort((a, b) => b.blockNumber - a.blockNumber);
+    return txs;
   }
 }

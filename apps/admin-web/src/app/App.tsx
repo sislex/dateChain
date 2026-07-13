@@ -1,6 +1,7 @@
 import { UserRole } from "@datechain/types";
 import { Navigate, Route, Routes } from "react-router-dom";
 
+import { AuditPage } from "../features/AuditPage";
 import { DashboardPage } from "../features/DashboardPage";
 import { LoginPage } from "../features/LoginPage";
 import { ModerationPage } from "../features/ModerationPage";
@@ -9,10 +10,6 @@ import { UsersPage } from "../features/UsersPage";
 
 import { AdminLayout } from "./AdminLayout";
 import { RoleGuard } from "./RoleGuard";
-
-function Stub({ title }: { title: string }) {
-  return <h1>{title}</h1>;
-}
 
 export function App() {
   return (
@@ -55,7 +52,7 @@ export function App() {
           path="audit"
           element={
             <RoleGuard min={UserRole.Admin}>
-              <Stub title="Аудит" />
+              <AuditPage />
             </RoleGuard>
           }
         />
