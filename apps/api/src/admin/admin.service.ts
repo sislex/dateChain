@@ -159,16 +159,20 @@ export class AdminService {
     return this.settings.find();
   }
 
-  /** Peer-to-peer transfer commission, in basis points (200 = 2%). */
+  /** Peer-to-peer transfer commission (bps), enforced on-chain by the escrow. */
   async getTransferFee(): Promise<{ feeBps: number }> {
-    const row = await this.settings.findOne({ where: { key: "transfer_fee_bps" } });
-    return { feeBps: row ? Number(row.value) : 200 };
+    const bps: bigint = await this.chain.escrow().transferFeeBps();
+    return { feeBps: Number(bps) };
   }
 
   async setTransferFee(actorId: string, feeBps: number): Promise<{ feeBps: number }> {
-    await this.settings.save(this.settings.create({ key: "transfer_fee_bps", value: feeBps }));
+    await this.chain.withTreasury(async (treasury, nextNonce) => {
+      await (
+        await this.chain.escrow(treasury).setTransferFeeBps(feeBps, { nonce: nextNonce() })
+      ).wait();
+    });
     await this.audit(actorId, "transfer_fee.update", undefined, { feeBps });
-    return { feeBps };
+    return this.getTransferFee();
   }
 
   async setSetting(actorId: string, key: string, value: unknown): Promise<Setting> {
