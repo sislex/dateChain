@@ -40,7 +40,9 @@ export function WalletPage() {
           <li key={`${t.hash}-${t.direction}`} className={styles.tx} data-testid="wallet-tx">
             <div className={styles.txMain}>
               <span className={styles.txLabel}>{t.label}</span>
-              <span className={styles.txCounter}>{shortAddr(t.counterparty)}</span>
+              <span className={styles.txCounter} title={t.hash}>
+                {shortAddr(t.counterparty)} · tx {shortAddr(t.hash)}
+              </span>
             </div>
             <span className={t.direction === "in" ? styles.in : styles.out}>
               {t.direction === "in" ? "+" : "−"}

@@ -29,6 +29,22 @@ type Story = StoryObj<typeof SwipeCard>;
 
 export const Draggable: Story = {};
 
+export const WithGender: Story = {
+  args: { profile: { ...profile, gender: "WOMAN", name: "Мария", age: 26 } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("Женщина")).toBeInTheDocument();
+  },
+};
+
+export const SuperLikedYou: Story = {
+  args: { profile: { ...profile, gender: "MAN", superLikedYou: true } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId("super-badge")).toBeInTheDocument();
+  },
+};
+
 function SwipeWithActions(args: SwipeCardProps) {
   const ref = useRef<SwipeCardHandle>(null);
   return (
