@@ -20,5 +20,8 @@ export default defineConfig({
     url: "http://127.0.0.1:5173",
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
+    // Force the standard OTP flow in tests regardless of a local dev .env
+    // (VITE_DEV_LOGIN=true would replace the "Получить код" step with "Войти").
+    env: { VITE_DEV_LOGIN: "false" },
   },
 });
