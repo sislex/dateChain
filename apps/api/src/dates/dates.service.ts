@@ -9,6 +9,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { parseUnits } from "ethers";
 import { In, Repository } from "typeorm";
 
+import { AuditService } from "../audit/audit.service";
 import { ChainService } from "../chain/chain.service";
 import { MatchService } from "../matching/match.service";
 import { NotificationType } from "../notifications/notification.entity";
@@ -38,6 +39,7 @@ export class DatesService {
     private readonly wallets: WalletService,
     private readonly matches: MatchService,
     private readonly notifications: NotificationService,
+    private readonly audit: AuditService,
   ) {}
 
   /** Translates an on-chain revert into a 400 instead of a 500. */
@@ -113,6 +115,11 @@ export class DatesService {
       fromUserId: proposerId,
       amount: String(amount),
     });
+    await this.audit.record(proposerId, "date.propose", { type: "date", id: date.id }, {
+      inviteeId,
+      amount: String(amount),
+      escrowId,
+    });
     return this.toView(date, proposerId);
   }
 
@@ -129,6 +136,9 @@ export class DatesService {
     await this.notifications.create(date.proposerId, NotificationType.DateAccepted, {
       dateId,
       fromUserId: userId,
+    });
+    await this.audit.record(userId, "date.accept", { type: "date", id: dateId }, {
+      amount: date.amount,
     });
     return this.toView(date, userId);
   }
@@ -147,6 +157,7 @@ export class DatesService {
       dateId,
       fromUserId: userId,
     });
+    await this.audit.record(userId, "date.decline", { type: "date", id: dateId });
     return this.toView(date, userId);
   }
 
@@ -168,6 +179,10 @@ export class DatesService {
       dateId,
       fromUserId: userId,
     });
+    await this.audit.record(userId, "date.confirm", { type: "date", id: dateId }, {
+      amount: date.amount,
+      settleTx,
+    });
     return this.toView(date, userId);
   }
 
@@ -176,6 +191,7 @@ export class DatesService {
       DateStatus.Proposed,
       DateStatus.Accepted,
     ]);
+    const wasFunded = date.status === DateStatus.Accepted; // penalty applies only if funded
     const signer = await this.wallets.signerFor(userId);
     let settleTx = "";
     await this.onChain(() =>
@@ -191,6 +207,11 @@ export class DatesService {
     await this.notifications.create(date.inviteeId, NotificationType.DateCancelled, {
       dateId,
       fromUserId: userId,
+    });
+    await this.audit.record(userId, "date.cancel", { type: "date", id: dateId }, {
+      amount: date.amount,
+      penalty: wasFunded,
+      settleTx,
     });
     return this.toView(date, userId);
   }
