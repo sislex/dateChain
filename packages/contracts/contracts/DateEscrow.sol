@@ -40,8 +40,10 @@ contract DateEscrow is Ownable, ReentrancyGuard {
 
     IERC20 public immutable token;
     address public serviceWallet;
-    /// @notice Service fee in basis points (2000 = 20%). Capped at 100%.
+    /// @notice Escrow (date) service fee in basis points (2000 = 20%). Capped at 100%.
     uint16 public feeBps;
+    /// @notice Peer-to-peer transfer commission in basis points (200 = 2%).
+    uint16 public transferFeeBps;
 
     uint256 public nextId = 1;
     mapping(uint256 => Escrow) public escrows;
@@ -53,19 +55,24 @@ contract DateEscrow is Ownable, ReentrancyGuard {
     event Cancelled(uint256 indexed id, uint256 refund, uint256 fee);
     event ServiceWalletChanged(address indexed wallet);
     event FeeChanged(uint16 feeBps);
+    event TransferFeeChanged(uint16 transferFeeBps);
+    event Transferred(address indexed from, address indexed to, uint256 net, uint256 fee);
 
     constructor(
         address initialOwner,
         IERC20 token_,
         address serviceWallet_,
-        uint16 feeBps_
+        uint16 feeBps_,
+        uint16 transferFeeBps_
     ) Ownable(initialOwner) {
         require(address(token_) != address(0), "token=0");
         require(serviceWallet_ != address(0), "service=0");
         require(feeBps_ <= 10000, "fee>100%");
+        require(transferFeeBps_ <= 10000, "transferFee>100%");
         token = token_;
         serviceWallet = serviceWallet_;
         feeBps = feeBps_;
+        transferFeeBps = transferFeeBps_;
     }
 
     function setServiceWallet(address wallet) external onlyOwner {
@@ -78,6 +85,25 @@ contract DateEscrow is Ownable, ReentrancyGuard {
         require(bps <= 10000, "fee>100%");
         feeBps = bps;
         emit FeeChanged(bps);
+    }
+
+    function setTransferFeeBps(uint16 bps) external onlyOwner {
+        require(bps <= 10000, "transferFee>100%");
+        transferFeeBps = bps;
+        emit TransferFeeChanged(bps);
+    }
+
+    /// @notice Direct peer-to-peer payment: recipient gets amount-fee, service gets fee.
+    /// The sender must approve this contract for `amount` first.
+    function payTransfer(address to, uint256 amount) external nonReentrant {
+        require(to != address(0), "to=0");
+        require(to != msg.sender, "self");
+        require(amount > 0, "amount=0");
+        uint256 fee = (amount * transferFeeBps) / 10000;
+        uint256 net = amount - fee;
+        token.safeTransferFrom(msg.sender, to, net);
+        if (fee > 0) token.safeTransferFrom(msg.sender, serviceWallet, fee);
+        emit Transferred(msg.sender, to, net, fee);
     }
 
     /// @notice Proposer offers `amount` to `payee`. No funds move until acceptance.

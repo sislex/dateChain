@@ -3,7 +3,6 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { formatUnits, parseUnits } from "ethers";
 import { In, Repository } from "typeorm";
 
-import { Setting } from "../admin/setting.entity";
 import { AuditService } from "../audit/audit.service";
 import { ChainService } from "../chain/chain.service";
 import { NotificationType } from "../notifications/notification.entity";
@@ -12,9 +11,6 @@ import { Profile } from "../profiles/profile.entity";
 import { WalletService } from "../wallet/wallet.service";
 
 import { Transfer } from "./transfer.entity";
-
-const DEFAULT_TRANSFER_FEE_BPS = 200; // 2%
-export const TRANSFER_FEE_KEY = "transfer_fee_bps";
 
 export interface TransferView {
   id: string;
@@ -30,7 +26,6 @@ export interface TransferView {
 export class TransfersService {
   constructor(
     @InjectRepository(Transfer) private readonly transfers: Repository<Transfer>,
-    @InjectRepository(Setting) private readonly settings: Repository<Setting>,
     @InjectRepository(Profile) private readonly profiles: Repository<Profile>,
     private readonly chain: ChainService,
     private readonly wallets: WalletService,
@@ -38,13 +33,17 @@ export class TransfersService {
     private readonly audit: AuditService,
   ) {}
 
+  /** Transfer commission (bps) — read from the escrow contract. */
   async getFeeBps(): Promise<number> {
-    const row = await this.settings.findOne({ where: { key: TRANSFER_FEE_KEY } });
-    const value = row ? Number(row.value) : DEFAULT_TRANSFER_FEE_BPS;
-    return Number.isFinite(value) ? value : DEFAULT_TRANSFER_FEE_BPS;
+    const bps: bigint = await this.chain.escrow().transferFeeBps();
+    return Number(bps);
   }
 
-  /** Sends `amount` DATE from one user to another, taking the service commission. */
+  /**
+   * Sends `amount` DATE from one user to another. The split is enforced on-chain
+   * by DateEscrow.payTransfer: the sender approves the escrow, which pays the
+   * recipient (amount - fee) and the service (fee) atomically.
+   */
   async send(fromId: string, toId: string, amount: number): Promise<TransferView> {
     if (fromId === toId) throw new BadRequestException("Нельзя перевести самому себе");
     const feeBps = await this.getFeeBps();
@@ -54,7 +53,7 @@ export class TransfersService {
 
     const signer = await this.wallets.signerFor(fromId);
     const toAddr = await this.wallets.addressOf(toId);
-    const service = await this.chain.escrow().serviceWallet();
+    const escrowAddr = this.chain.escrowAddress;
 
     const balance: bigint = await this.chain.token().balanceOf(signer.address);
     if (balance < amountBase) throw new BadRequestException("Недостаточно средств");
@@ -62,14 +61,14 @@ export class TransfersService {
     let txHash = "";
     try {
       await this.chain.withSigner(signer, async (nextNonce) => {
-        const tx = await this.chain.token(signer).transfer(toAddr, netBase, { nonce: nextNonce() });
+        await (
+          await this.chain.token(signer).approve(escrowAddr, amountBase, { nonce: nextNonce() })
+        ).wait();
+        const tx = await this.chain
+          .escrow(signer)
+          .payTransfer(toAddr, amountBase, { nonce: nextNonce() });
         await tx.wait();
         txHash = tx.hash;
-        if (feeBase > 0n) {
-          await (
-            await this.chain.token(signer).transfer(service, feeBase, { nonce: nextNonce() })
-          ).wait();
-        }
       });
     } catch (err) {
       const reason =
