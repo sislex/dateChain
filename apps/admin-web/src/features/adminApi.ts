@@ -109,6 +109,14 @@ export const adminApi = baseApi.injectEndpoints({
       query: ({ address }) => ({ url: "/admin/service-wallet", method: "PUT", body: { address } }),
       invalidatesTags: ["ServiceWallet"],
     }),
+    getTransferFee: build.query<{ feeBps: number }, void>({
+      query: () => "/admin/transfer-fee",
+      providesTags: ["TransferFee"],
+    }),
+    setTransferFee: build.mutation<{ feeBps: number }, { feeBps: number }>({
+      query: ({ feeBps }) => ({ url: "/admin/transfer-fee", method: "PUT", body: { feeBps } }),
+      invalidatesTags: ["TransferFee"],
+    }),
     getSettings: build.query<Array<{ key: string; value: unknown }>, void>({
       query: () => "/admin/settings",
       providesTags: ["Settings"],
@@ -137,4 +145,6 @@ export const {
   useSetSettingMutation,
   useGetServiceWalletQuery,
   useSetServiceWalletMutation,
+  useGetTransferFeeQuery,
+  useSetTransferFeeMutation,
 } = adminApi;

@@ -19,6 +19,7 @@ const LABELS: Record<NotificationType, string> = {
   DATE_DECLINED: "Свидание отклонено",
   DATE_CONFIRMED: "Свидание подтверждено — токены переведены",
   DATE_CANCELLED: "Свидание отменено",
+  TRANSFER_RECEIVED: "Вам перевели токены ↗",
 };
 
 function timeAgo(iso: string): string {

@@ -159,6 +159,18 @@ export class AdminService {
     return this.settings.find();
   }
 
+  /** Peer-to-peer transfer commission, in basis points (200 = 2%). */
+  async getTransferFee(): Promise<{ feeBps: number }> {
+    const row = await this.settings.findOne({ where: { key: "transfer_fee_bps" } });
+    return { feeBps: row ? Number(row.value) : 200 };
+  }
+
+  async setTransferFee(actorId: string, feeBps: number): Promise<{ feeBps: number }> {
+    await this.settings.save(this.settings.create({ key: "transfer_fee_bps", value: feeBps }));
+    await this.audit(actorId, "transfer_fee.update", undefined, { feeBps });
+    return { feeBps };
+  }
+
   async setSetting(actorId: string, key: string, value: unknown): Promise<Setting> {
     await this.settings.save(this.settings.create({ key, value }));
     await this.audit(actorId, "setting.update", { type: "setting", id: key }, { key });

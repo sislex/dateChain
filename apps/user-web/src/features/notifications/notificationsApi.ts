@@ -9,7 +9,8 @@ export type NotificationType =
   | "DATE_ACCEPTED"
   | "DATE_DECLINED"
   | "DATE_CONFIRMED"
-  | "DATE_CANCELLED";
+  | "DATE_CANCELLED"
+  | "TRANSFER_RECEIVED";
 
 export interface AppNotification {
   id: string;

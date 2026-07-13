@@ -1,5 +1,15 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsBoolean, IsEnum, IsEthereumAddress, IsOptional, IsString } from "class-validator";
+import { Type } from "class-transformer";
+import {
+  IsBoolean,
+  IsEnum,
+  IsEthereumAddress,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from "class-validator";
 
 import { ReportStatus } from "../moderation/report.entity";
 import { UserStatus } from "../users/user.entity";
@@ -35,4 +45,13 @@ export class SetServiceWalletDto {
   @ApiProperty({ description: "0x-prefixed Ethereum address for service commissions" })
   @IsEthereumAddress()
   address!: string;
+}
+
+export class SetTransferFeeDto {
+  @ApiProperty({ minimum: 0, maximum: 5000, description: "Transfer commission in basis points" })
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @Max(5000)
+  feeBps!: number;
 }

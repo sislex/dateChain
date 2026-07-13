@@ -10,6 +10,7 @@ export enum NotificationType {
   DateDeclined = "DATE_DECLINED",
   DateConfirmed = "DATE_CONFIRMED",
   DateCancelled = "DATE_CANCELLED",
+  TransferReceived = "TRANSFER_RECEIVED",
 }
 
 @Entity("notifications")
