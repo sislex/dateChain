@@ -22,6 +22,7 @@ import { NotificationsModule } from "./notifications/notifications.module";
 import { ProfilesModule } from "./profiles/profiles.module";
 import { RatingsModule } from "./ratings/ratings.module";
 import { RedisModule } from "./redis/redis.module";
+import { TransfersModule } from "./transfers/transfers.module";
 import { UsersModule } from "./users/users.module";
 import { WalletModule } from "./wallet/wallet.module";
 
@@ -68,6 +69,7 @@ import { WalletModule } from "./wallet/wallet.module";
     ChatModule,
     DatesModule,
     RatingsModule,
+    TransfersModule,
     ModerationModule,
     NotificationsModule,
     AdminModule,

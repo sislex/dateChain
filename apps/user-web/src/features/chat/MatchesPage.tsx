@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useSocketEvent } from "../../socket/useSocketEvent";
 import { ProposeDateButton } from "../dates/ProposeDateButton";
 import { photoUrl } from "../discovery/discoveryApi";
+import { TransferButton } from "../transfers/TransferButton";
 
 import styles from "./MatchesPage.module.css";
 import { useGetMatchPreviewsQuery } from "./chatApi";
@@ -63,6 +64,11 @@ export function MatchesPage() {
                   inviteeName={m.partner.displayName}
                   label="💎"
                 />
+                <TransferButton
+                  recipientId={m.partner.userId}
+                  recipientName={m.partner.displayName}
+                  label="↗"
+                />
               </div>
             ))}
           </div>
@@ -87,6 +93,11 @@ export function MatchesPage() {
               inviteeId={m.partner.userId}
               inviteeName={m.partner.displayName}
               label="💎"
+            />
+            <TransferButton
+              recipientId={m.partner.userId}
+              recipientName={m.partner.displayName}
+              label="↗"
             />
           </div>
         ))}

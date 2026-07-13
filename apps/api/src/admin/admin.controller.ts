@@ -6,7 +6,13 @@ import { CurrentUser, Roles, type AuthenticatedUser } from "../auth/decorators";
 import { UserStatus } from "../users/user.entity";
 
 import { AdminService } from "./admin.service";
-import { ResolveReportDto, SetServiceWalletDto, SetSettingDto, SetStatusDto } from "./dto";
+import {
+  ResolveReportDto,
+  SetServiceWalletDto,
+  SetSettingDto,
+  SetStatusDto,
+  SetTransferFeeDto,
+} from "./dto";
 
 @ApiTags("admin")
 @ApiBearerAuth("access-token")
@@ -90,6 +96,18 @@ export class AdminController {
   @Roles(UserRole.Admin)
   setServiceWallet(@CurrentUser() actor: AuthenticatedUser, @Body() dto: SetServiceWalletDto) {
     return this.admin.setServiceWallet(actor.userId, dto.address);
+  }
+
+  @Get("transfer-fee")
+  @Roles(UserRole.Admin)
+  getTransferFee() {
+    return this.admin.getTransferFee();
+  }
+
+  @Put("transfer-fee")
+  @Roles(UserRole.Admin)
+  setTransferFee(@CurrentUser() actor: AuthenticatedUser, @Body() dto: SetTransferFeeDto) {
+    return this.admin.setTransferFee(actor.userId, dto.feeBps);
   }
 
   @Get("settings")
