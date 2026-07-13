@@ -29,6 +29,11 @@ export class MatchingController {
     return this.swipes.rewind(user.userId);
   }
 
+  @Get("likes")
+  likes(@CurrentUser() user: AuthenticatedUser) {
+    return this.swipes.incomingLikes(user.userId);
+  }
+
   @Get("matches")
   listMatches(@CurrentUser() user: AuthenticatedUser) {
     return this.matches.listForUser(user.userId);

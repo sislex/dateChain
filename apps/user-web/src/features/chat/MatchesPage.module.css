@@ -52,11 +52,29 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: var(--dc-space-2);
+}
+
+.laneButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: var(--dc-space-1);
   border: none;
   background: transparent;
   cursor: pointer;
   color: var(--dc-color-text);
+}
+
+.conversationRow {
+  display: flex;
+  align-items: center;
+  gap: var(--dc-space-2);
+}
+
+.conversationItem {
+  flex: 1;
+  min-width: 0;
 }
 
 .laneName {
