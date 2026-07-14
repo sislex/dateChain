@@ -10,6 +10,8 @@ export type NotificationType =
   | "DATE_DECLINED"
   | "DATE_CONFIRMED"
   | "DATE_CANCELLED"
+  | "DATE_CLAIM_AVAILABLE"
+  | "DATE_REMINDER"
   | "TRANSFER_RECEIVED";
 
 export interface AppNotification {

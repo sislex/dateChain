@@ -779,6 +779,25 @@
         ]
       }
     },
+    "/dates/fee": {
+      "get": {
+        "operationId": "DatesController_fee",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "dates"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
     "/dates/{id}/accept": {
       "post": {
         "operationId": "DatesController_accept",

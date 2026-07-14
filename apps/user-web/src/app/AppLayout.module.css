@@ -1,14 +1,49 @@
-.mobile {
+.shell {
   display: flex;
   flex-direction: column;
   height: 100dvh;
+}
+
+.impersonationBanner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--dc-space-2);
+  padding: 6px var(--dc-space-3);
+  background: #b45309;
+  color: #fff;
+  font-family: var(--dc-font-family);
+  font-size: var(--dc-font-size-sm);
+}
+
+.impersonationExit {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: var(--dc-radius-pill);
+  background: none;
+  color: #fff;
+  font: inherit;
+  padding: 2px 12px;
+  cursor: pointer;
+}
+
+.impersonationExit:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.mobile {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
   background: var(--dc-color-bg);
 }
 
 .desktop {
   display: grid;
   grid-template-columns: 260px 1fr;
-  height: 100dvh;
+  flex: 1;
+  min-height: 0;
   background: var(--dc-color-bg);
 }
 

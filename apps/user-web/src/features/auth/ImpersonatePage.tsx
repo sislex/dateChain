@@ -38,6 +38,7 @@ export function ImpersonatePage() {
           email: params.get("email"),
           phone: params.get("phone"),
         },
+        impersonated: true,
       }),
     );
     // Drop the tokens from the address bar before entering the app.

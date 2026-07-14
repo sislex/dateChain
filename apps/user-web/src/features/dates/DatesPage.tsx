@@ -4,6 +4,7 @@ import { useState } from "react";
 import styles from "./DatesPage.module.css";
 import {
   useDateActionMutation,
+  useGetDateFeeQuery,
   useGetDatesQuery,
   useGetWalletQuery,
   useRateDateMutation,
@@ -28,7 +29,8 @@ interface PendingAction {
   action: Extract<DateAction, "confirm" | "cancel" | "refuse" | "claim">;
 }
 
-const FEE_RATE = 0.2; // должен соответствовать feeBps контракта (20%)
+/** Fallback while /dates/fee is loading; the contract default is 20%. */
+const DEFAULT_FEE_RATE = 0.2;
 
 function formatWhen(iso: string): string {
   return new Date(iso).toLocaleString("ru-RU", {
@@ -40,9 +42,12 @@ function formatWhen(iso: string): string {
   });
 }
 
-function confirmDialogText(p: PendingAction): { title: string; body: string; cta: string } {
+function confirmDialogText(
+  p: PendingAction,
+  feeRate: number,
+): { title: string; body: string; cta: string } {
   const amount = Number(p.date.amount);
-  const fee = amount * FEE_RATE;
+  const fee = Math.round(amount * feeRate * 100) / 100;
   const net = amount - fee;
   switch (p.action) {
     case "confirm":
@@ -81,6 +86,8 @@ function confirmDialogText(p: PendingAction): { title: string; body: string; cta
 export function DatesPage() {
   const { data: wallet } = useGetWalletQuery();
   const { data: dates, isLoading } = useGetDatesQuery();
+  const { data: feeData } = useGetDateFeeQuery();
+  const feeRate = feeData ? feeData.feeBps / 10000 : DEFAULT_FEE_RATE;
   const [dateAction, { isLoading: acting }] = useDateActionMutation();
   const [rateDate] = useRateDateMutation();
   const [rated, setRated] = useState<Record<string, number>>({});
@@ -209,15 +216,15 @@ export function DatesPage() {
       <Modal
         open={pending !== null}
         onClose={() => setPending(null)}
-        title={pending ? confirmDialogText(pending).title : ""}
+        title={pending ? confirmDialogText(pending, feeRate).title : ""}
       >
         {pending && (
           <>
-            <p>{confirmDialogText(pending).body}</p>
+            <p>{confirmDialogText(pending, feeRate).body}</p>
             {actionError && <p className={styles.error}>{actionError}</p>}
             <div className={styles.actions}>
               <Button size="md" disabled={acting} onClick={runPending} data-testid="confirm-action">
-                {confirmDialogText(pending).cta}
+                {confirmDialogText(pending, feeRate).cta}
               </Button>
               <Button size="md" variant="ghost" disabled={acting} onClick={() => setPending(null)}>
                 Назад
@@ -289,7 +296,8 @@ function renderActions(
     return (
       <>
         <p className={styles.hint}>
-          Вы согласились. После встречи инициатор подтвердит свидание — тогда вы получите 80% суммы.
+          Вы согласились. После встречи инициатор подтвердит свидание — тогда вы получите сумму за
+          вычетом комиссии сервиса.
           {claimAt && !claimable && (
             <> Если он не подтвердит до {formatWhen(claimAt.toISOString())}, вы сможете забрать выплату сами.</>
           )}

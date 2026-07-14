@@ -3,7 +3,11 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
+  ServiceUnavailableException,
+  type OnModuleDestroy,
+  type OnModuleInit,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { parseUnits } from "ethers";
@@ -39,7 +43,10 @@ export interface DateView {
 }
 
 @Injectable()
-export class DatesService {
+export class DatesService implements OnModuleInit, OnModuleDestroy {
+  private readonly logger = new Logger(DatesService.name);
+  private jobTimer: NodeJS.Timeout | null = null;
+
   constructor(
     @InjectRepository(DateEntity) private readonly dates: Repository<DateEntity>,
     @InjectRepository(Profile) private readonly profiles: Repository<Profile>,
@@ -50,6 +57,73 @@ export class DatesService {
     private readonly notifications: NotificationService,
     private readonly audit: AuditService,
   ) {}
+
+  /** Periodic job: claim-deadline and day-of-date notifications. */
+  onModuleInit(): void {
+    const run = () => void this.runNotificationJobs().catch((err) => this.logger.warn(err));
+    this.jobTimer = setInterval(run, 10 * 60_000);
+    this.jobTimer.unref?.();
+    run();
+  }
+
+  onModuleDestroy(): void {
+    if (this.jobTimer) clearInterval(this.jobTimer);
+  }
+
+  /** Visible for tests; normally invoked by the interval. */
+  async runNotificationJobs(): Promise<void> {
+    await this.notifyClaimAvailable();
+    await this.sendDateReminders();
+  }
+
+  /** Tells invitees their claim deadline has passed (proposer went silent). */
+  private async notifyClaimAvailable(): Promise<void> {
+    if (!this.chain.available) return;
+    const timeoutSec = await this.getClaimTimeout();
+    const deadline = new Date(Date.now() - timeoutSec * 1000);
+    const rows = await this.dates
+      .createQueryBuilder("d")
+      .where("d.status = :status", { status: DateStatus.Accepted })
+      .andWhere("d.acceptedAt IS NOT NULL")
+      .andWhere("d.claimNotifiedAt IS NULL")
+      .andWhere("d.acceptedAt <= :deadline", { deadline })
+      .getMany();
+    for (const d of rows) {
+      await this.notifications.create(d.inviteeId, NotificationType.DateClaimAvailable, {
+        dateId: d.id,
+        fromUserId: d.proposerId,
+        amount: d.amount,
+      });
+      d.claimNotifiedAt = new Date();
+      await this.dates.save(d);
+      this.logger.log(`claim-available notification sent for date ${d.id}`);
+    }
+  }
+
+  /** Reminds both participants about a date scheduled within the next 24h. */
+  private async sendDateReminders(): Promise<void> {
+    const now = new Date();
+    const dayAhead = new Date(now.getTime() + 24 * 3600_000);
+    const rows = await this.dates
+      .createQueryBuilder("d")
+      .where("d.status = :status", { status: DateStatus.Accepted })
+      .andWhere("d.scheduledAt IS NOT NULL")
+      .andWhere("d.reminderSentAt IS NULL")
+      .andWhere("d.scheduledAt BETWEEN :now AND :dayAhead", { now, dayAhead })
+      .getMany();
+    for (const d of rows) {
+      for (const userId of [d.proposerId, d.inviteeId]) {
+        await this.notifications.create(userId, NotificationType.DateReminder, {
+          dateId: d.id,
+          scheduledAt: d.scheduledAt?.toISOString() ?? null,
+          location: d.location,
+        });
+      }
+      d.reminderSentAt = new Date();
+      await this.dates.save(d);
+      this.logger.log(`reminder sent for date ${d.id}`);
+    }
+  }
 
   /** Translates an on-chain revert into a 400 instead of a 500. */
   private async onChain<T>(fn: () => Promise<T>): Promise<T> {
@@ -76,6 +150,15 @@ export class DatesService {
     return this.claimTimeoutCache.value;
   }
 
+  /** Escrow commission for UI previews (confirm/cancel dialogs). */
+  async getFee(): Promise<{ feeBps: number }> {
+    if (!this.chain.available) {
+      throw new ServiceUnavailableException("Blockchain unavailable (run chain:deploy)");
+    }
+    const bps: bigint = await this.chain.escrow().feeBps();
+    return { feeBps: Number(bps) };
+  }
+
   async propose(
     proposerId: string,
     inviteeId: string,
@@ -85,6 +168,9 @@ export class DatesService {
     location?: string,
   ): Promise<DateView> {
     if (proposerId === inviteeId) throw new BadRequestException("Cannot invite yourself");
+    if (scheduledAt && new Date(scheduledAt).getTime() < Date.now()) {
+      throw new BadRequestException("Дата свидания уже прошла");
+    }
     const amountBase = parseUnits(String(amount), 18);
 
     const proposer = await this.wallets.signerFor(proposerId);

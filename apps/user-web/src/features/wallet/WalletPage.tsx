@@ -36,11 +36,16 @@ function operationLabel(item: WalletHistoryItem): string {
   if (item.type === "transfer") {
     return item.direction === "out" ? `Отправлено: ${name}` : `Получено от: ${name}`;
   }
+  if (item.status === "CANCELLED") return `Отмена свидания с ${name} — штраф`;
   const frozen = item.status === "PROPOSED" || item.status === "ACCEPTED";
   if (item.direction === "out") {
     return frozen ? `Свидание с ${name} (заморожено)` : `Свидание с ${name}`;
   }
   return `Свидание с ${name}`;
+}
+
+function shortHash(h: string): string {
+  return `${h.slice(0, 8)}…${h.slice(-4)}`;
 }
 
 function formatTime(iso: string): string {
@@ -137,6 +142,7 @@ export function WalletPage() {
                 <th className={styles.num}>Комиссия</th>
                 <th>Время</th>
                 <th>Тип</th>
+                <th>Tx</th>
               </tr>
             </thead>
             <tbody>
@@ -152,6 +158,9 @@ export function WalletPage() {
                   </td>
                   <td className={styles.time}>{formatTime(t.createdAt)}</td>
                   <td>{TYPE_LABEL[t.type]}</td>
+                  <td className={styles.hash}>
+                    {t.txHash ? <span title={t.txHash}>{shortHash(t.txHash)}</span> : "—"}
+                  </td>
                 </tr>
               ))}
             </tbody>

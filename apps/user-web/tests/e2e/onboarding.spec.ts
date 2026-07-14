@@ -2,6 +2,10 @@ import { expect, test, type Page } from "@playwright/test";
 
 /** Stubs the auth + profile API and blocks socket.io so the flow runs standalone. */
 async function mockApi(page: Page): Promise<void> {
+  // Fallback so unmocked API calls never reach a live backend on :3000.
+  await page.route("**/api/**", (route) =>
+    route.fulfill({ status: 503, contentType: "application/json", body: "{}" }),
+  );
   await page.route("**/socket.io/**", (route) => route.abort());
   await page.route("**/api/auth/otp/request", (route) =>
     route.fulfill({

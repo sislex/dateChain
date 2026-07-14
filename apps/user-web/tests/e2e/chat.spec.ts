@@ -10,6 +10,12 @@ async function auth(page: Page): Promise<void> {
   await page.addInitScript((a) => {
     localStorage.setItem("datechain.auth", JSON.stringify(a));
   }, AUTH);
+  // Fallback for any API call a test doesn't mock — keeps e2e hermetic even
+  // when a real backend happens to run on :3000 (registered first = lowest
+  // priority, so per-test routes win).
+  await page.route("**/api/**", (r) =>
+    r.fulfill({ status: 503, contentType: "application/json", body: "{}" }),
+  );
   await page.route("**/socket.io/**", (r) => r.abort());
   await page.route("**/api/media/photo/**", (r) =>
     r.fulfill({ status: 200, contentType: "image/jpeg", body: "" }),

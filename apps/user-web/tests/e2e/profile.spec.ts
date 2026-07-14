@@ -30,6 +30,10 @@ const PROFILE = {
 
 async function auth(page: Page): Promise<void> {
   await page.addInitScript((a) => localStorage.setItem("datechain.auth", JSON.stringify(a)), AUTH);
+  // Fallback so unmocked API calls never reach a live backend on :3000.
+  await page.route("**/api/**", (r) =>
+    r.fulfill({ status: 503, contentType: "application/json", body: "{}" }),
+  );
   await page.route("**/socket.io/**", (r) => r.abort());
   await page.route("**/api/media/photo/**", (r) =>
     r.fulfill({ status: 200, contentType: "image/jpeg", body: "" }),

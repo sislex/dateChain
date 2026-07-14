@@ -10,6 +10,10 @@ export enum NotificationType {
   DateDeclined = "DATE_DECLINED",
   DateConfirmed = "DATE_CONFIRMED",
   DateCancelled = "DATE_CANCELLED",
+  /** The proposer went silent past the claim deadline — the invitee may claim. */
+  DateClaimAvailable = "DATE_CLAIM_AVAILABLE",
+  /** The scheduled date is today. */
+  DateReminder = "DATE_REMINDER",
   TransferReceived = "TRANSFER_RECEIVED",
 }
 

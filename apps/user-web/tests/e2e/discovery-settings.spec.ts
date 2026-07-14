@@ -32,6 +32,10 @@ test("editing discovery filters saves new values and returns to the deck", async
   await page.addInitScript((auth) => {
     localStorage.setItem("datechain.auth", JSON.stringify(auth));
   }, AUTH);
+  // Fallback so unmocked API calls never reach a live backend on :3000.
+  await page.route("**/api/**", (r) =>
+    r.fulfill({ status: 503, contentType: "application/json", body: "{}" }),
+  );
   await page.route("**/socket.io/**", (r) => r.abort());
 
   let putBody: Record<string, unknown> | null = null;
