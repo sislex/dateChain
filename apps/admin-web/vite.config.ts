@@ -5,6 +5,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [react()],
   server: {
+    host: true, // expose on the LAN (e.g. to test from a phone)
     port: 5174,
     proxy: {
       // Backend routes live at the root (/auth, /admin, …); strip the /api prefix.
