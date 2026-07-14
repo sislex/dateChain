@@ -15,11 +15,17 @@ export interface DateView {
   status: DateStatus;
   amount: string;
   message: string | null;
+  scheduledAt: string | null;
+  location: string | null;
   counterpart: { userId: string; displayName: string | null };
   matchId: string | null;
   myRating: number | null;
+  /** When the invitee may claim the payout if the proposer stays silent. */
+  claimAvailableAt: string | null;
   createdAt: string;
 }
+
+export type DateAction = "accept" | "decline" | "confirm" | "cancel" | "refuse" | "claim";
 
 export interface RatingSummary {
   average: number | null;
@@ -66,13 +72,20 @@ export const datesApi = baseApi.injectEndpoints({
       query: () => "/dates",
       providesTags: ["Date"],
     }),
-    proposeDate: build.mutation<DateView, { inviteeId: string; amount: number; message?: string }>({
+    proposeDate: build.mutation<
+      DateView,
+      { inviteeId: string; amount: number; message?: string; scheduledAt?: string; location?: string }
+    >({
       query: (body) => ({ url: "/dates", method: "POST", body }),
       invalidatesTags: ["Date", "Wallet"],
     }),
-    dateAction: build.mutation<DateView, { id: string; action: "accept" | "decline" | "confirm" | "cancel" }>({
+    dateAction: build.mutation<DateView, { id: string; action: DateAction }>({
       query: ({ id, action }) => ({ url: `/dates/${id}/${action}`, method: "POST" }),
       invalidatesTags: ["Date", "Wallet"],
+    }),
+    topUpWallet: build.mutation<WalletView, { amount: number }>({
+      query: (body) => ({ url: "/wallet/topup", method: "POST", body }),
+      invalidatesTags: ["Wallet"],
     }),
     rateDate: build.mutation<unknown, { id: string; score: number; comment?: string }>({
       query: ({ id, score, comment }) => ({
@@ -95,6 +108,7 @@ export const {
   useGetDatesQuery,
   useProposeDateMutation,
   useDateActionMutation,
+  useTopUpWalletMutation,
   useRateDateMutation,
   useGetUserRatingQuery,
 } = datesApi;

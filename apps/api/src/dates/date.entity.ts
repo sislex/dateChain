@@ -50,6 +50,18 @@ export class DateEntity {
   @Column({ type: "text", nullable: true })
   message!: string | null;
 
+  /** When the date is planned to happen (chosen by the proposer). */
+  @Column({ type: "timestamptz", nullable: true })
+  scheduledAt!: Date | null;
+
+  /** Where the date is planned to happen. */
+  @Column({ type: "varchar", length: 200, nullable: true })
+  location!: string | null;
+
+  /** When the invitee accepted — starts the on-chain claim timer. */
+  @Column({ type: "timestamptz", nullable: true })
+  acceptedAt!: Date | null;
+
   @Column({ type: "varchar", length: 66, nullable: true })
   proposeTx!: string | null;
 

@@ -20,6 +20,9 @@ export interface DeckCandidate {
   photos: DeckPhoto[];
   /** True when this candidate has already super-liked the viewer. */
   superLikedYou: boolean;
+  /** Average date rating (1–5, one decimal) or null if not rated yet. */
+  rating: number | null;
+  ratingCount: number;
 }
 
 export interface DeckRow {
@@ -31,6 +34,8 @@ export interface DeckRow {
   bio: string | null;
   interests: string | null;
   super_liked_you: boolean;
+  rating: string | number | null;
+  rating_count: string | number | null;
 }
 
 /** Maps a raw discovery SQL row + its photos into a typed candidate card. */
@@ -45,5 +50,7 @@ export function toDeckCandidate(row: DeckRow, photos: DeckPhoto[]): DeckCandidat
     interests: row.interests ? row.interests.split(",").filter(Boolean) : [],
     photos: [...photos].sort((a, b) => a.position - b.position),
     superLikedYou: Boolean(row.super_liked_you),
+    rating: row.rating === null ? null : Math.round(Number(row.rating) * 10) / 10,
+    ratingCount: Number(row.rating_count ?? 0),
   };
 }

@@ -103,6 +103,11 @@ export function DiscoveryPage() {
   return (
     <div className={styles.page}>
       <div className={styles.deck}>
+        {candidate.rating !== null && (
+          <span className={styles.ratingBadge} title={`Оценок за свидания: ${candidate.ratingCount}`}>
+            ★ {candidate.rating} ({candidate.ratingCount})
+          </span>
+        )}
         <SwipeCard
           key={candidate.userId}
           ref={cardRef}

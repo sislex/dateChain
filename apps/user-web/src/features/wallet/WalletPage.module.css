@@ -132,3 +132,38 @@
   white-space: nowrap;
   color: var(--dc-color-text-secondary);
 }
+
+.topupRow {
+  margin-top: var(--dc-space-3);
+}
+
+.filters {
+  display: flex;
+  gap: var(--dc-space-1);
+  margin-bottom: var(--dc-space-2);
+  flex-wrap: wrap;
+}
+
+.filter {
+  appearance: none;
+  background: none;
+  border: 1px solid var(--dc-color-border);
+  border-radius: var(--dc-radius-pill);
+  padding: 4px 12px;
+  font: inherit;
+  font-size: var(--dc-font-size-sm);
+  color: var(--dc-color-text-secondary);
+  cursor: pointer;
+}
+
+.filterActive {
+  color: #fff;
+  background: var(--dc-color-brand-start, #fd267d);
+  border-color: var(--dc-color-brand-start, #fd267d);
+}
+
+.moreRow {
+  display: flex;
+  justify-content: center;
+  padding: var(--dc-space-2);
+}

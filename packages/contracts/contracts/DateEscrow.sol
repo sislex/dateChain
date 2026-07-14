@@ -15,7 +15,9 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
  *
  * Lifecycle:
  *   propose ─▶ Proposed ─accept▶ Accepted ─confirm▶ Confirmed
- *                 │                  └──────cancel▶ Cancelled (fee penalty)
+ *                 │                  ├──────cancel▶ Cancelled (fee penalty)
+ *                 │                  ├─cancelByPayee▶ Declined (full refund)
+ *                 │                  └─claim (payee, after claimTimeout)▶ Confirmed
  *                 ├─decline▶ Declined
  *                 └─cancel──▶ Cancelled (no funds moved)
  */
@@ -36,6 +38,8 @@ contract DateEscrow is Ownable, ReentrancyGuard {
         address payee;
         uint256 amount;
         Status status;
+        /// @notice When the payee accepted (0 until then); starts the claim timer.
+        uint64 acceptedAt;
     }
 
     IERC20 public immutable token;
@@ -44,6 +48,9 @@ contract DateEscrow is Ownable, ReentrancyGuard {
     uint16 public feeBps;
     /// @notice Peer-to-peer transfer commission in basis points (200 = 2%).
     uint16 public transferFeeBps;
+    /// @notice How long after acceptance the proposer has to confirm/cancel before
+    /// the payee may claim the payout themselves.
+    uint64 public claimTimeout = 7 days;
 
     uint256 public nextId = 1;
     mapping(uint256 => Escrow) public escrows;
@@ -53,6 +60,9 @@ contract DateEscrow is Ownable, ReentrancyGuard {
     event Declined(uint256 indexed id);
     event Confirmed(uint256 indexed id, uint256 payout, uint256 fee);
     event Cancelled(uint256 indexed id, uint256 refund, uint256 fee);
+    event PayeeCancelled(uint256 indexed id, uint256 refund);
+    event Claimed(uint256 indexed id, uint256 payout, uint256 fee);
+    event ClaimTimeoutChanged(uint64 claimTimeout);
     event ServiceWalletChanged(address indexed wallet);
     event FeeChanged(uint16 feeBps);
     event TransferFeeChanged(uint16 transferFeeBps);
@@ -93,6 +103,12 @@ contract DateEscrow is Ownable, ReentrancyGuard {
         emit TransferFeeChanged(bps);
     }
 
+    function setClaimTimeout(uint64 timeout) external onlyOwner {
+        require(timeout >= 1 hours, "timeout<1h");
+        claimTimeout = timeout;
+        emit ClaimTimeoutChanged(timeout);
+    }
+
     /// @notice Direct peer-to-peer payment: recipient gets amount-fee, service gets fee.
     /// The sender must approve this contract for `amount` first.
     function payTransfer(address to, uint256 amount) external nonReentrant {
@@ -116,7 +132,8 @@ contract DateEscrow is Ownable, ReentrancyGuard {
             proposer: msg.sender,
             payee: payee,
             amount: amount,
-            status: Status.Proposed
+            status: Status.Proposed,
+            acceptedAt: 0
         });
         emit Proposed(id, msg.sender, payee, amount);
     }
@@ -127,6 +144,7 @@ contract DateEscrow is Ownable, ReentrancyGuard {
         require(e.status == Status.Proposed, "bad status");
         require(msg.sender == e.payee, "not payee");
         e.status = Status.Accepted;
+        e.acceptedAt = uint64(block.timestamp);
         token.safeTransferFrom(e.proposer, address(this), e.amount);
         emit Accepted(id, e.amount);
     }
@@ -170,5 +188,32 @@ contract DateEscrow is Ownable, ReentrancyGuard {
             if (refund > 0) token.safeTransfer(e.proposer, refund);
         }
         emit Cancelled(id, refund, fee);
+    }
+
+    /// @notice Payee backs out after accepting: the proposer is refunded in full,
+    /// no fee is taken (the payee is the one breaking the deal).
+    function cancelByPayee(uint256 id) external nonReentrant {
+        Escrow storage e = escrows[id];
+        require(e.status == Status.Accepted, "bad status");
+        require(msg.sender == e.payee, "not payee");
+        e.status = Status.Declined;
+        token.safeTransfer(e.proposer, e.amount);
+        emit PayeeCancelled(id, e.amount);
+    }
+
+    /// @notice If the proposer neither confirms nor cancels within `claimTimeout`
+    /// of acceptance, the payee may claim the payout (same split as confirm), so
+    /// funds can never be locked forever by an unresponsive proposer.
+    function claim(uint256 id) external nonReentrant {
+        Escrow storage e = escrows[id];
+        require(e.status == Status.Accepted, "bad status");
+        require(msg.sender == e.payee, "not payee");
+        require(block.timestamp >= uint256(e.acceptedAt) + claimTimeout, "too early");
+        e.status = Status.Confirmed;
+        uint256 fee = (e.amount * feeBps) / 10000;
+        uint256 payout = e.amount - fee;
+        if (payout > 0) token.safeTransfer(e.payee, payout);
+        if (fee > 0) token.safeTransfer(serviceWallet, fee);
+        emit Claimed(id, payout, fee);
     }
 }

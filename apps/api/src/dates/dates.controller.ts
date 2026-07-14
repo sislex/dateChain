@@ -19,7 +19,14 @@ export class DatesController {
 
   @Post()
   propose(@CurrentUser() user: AuthenticatedUser, @Body() dto: ProposeDateDto) {
-    return this.dates.propose(user.userId, dto.inviteeId, dto.amount, dto.message);
+    return this.dates.propose(
+      user.userId,
+      dto.inviteeId,
+      dto.amount,
+      dto.message,
+      dto.scheduledAt,
+      dto.location,
+    );
   }
 
   @Post(":id/accept")
@@ -40,5 +47,17 @@ export class DatesController {
   @Post(":id/cancel")
   cancel(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string) {
     return this.dates.cancel(id, user.userId);
+  }
+
+  /** Invitee backs out after accepting (full refund to the proposer). */
+  @Post(":id/refuse")
+  refuse(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string) {
+    return this.dates.refuse(id, user.userId);
+  }
+
+  /** Invitee claims the payout after the confirm timeout. */
+  @Post(":id/claim")
+  claim(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string) {
+    return this.dates.claim(id, user.userId);
   }
 }

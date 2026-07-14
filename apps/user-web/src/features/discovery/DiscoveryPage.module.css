@@ -14,6 +14,21 @@
   width: 100%;
   display: flex;
   justify-content: center;
+  position: relative;
+}
+
+.ratingBadge {
+  position: absolute;
+  top: var(--dc-space-2);
+  right: var(--dc-space-2);
+  z-index: 2;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.55);
+  color: #ffd166;
+  font-size: var(--dc-font-size-sm);
+  font-weight: var(--dc-font-weight-semibold);
+  padding: 4px 10px;
+  border-radius: var(--dc-radius-pill);
 }
 
 .center {

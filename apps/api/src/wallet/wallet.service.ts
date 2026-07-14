@@ -122,6 +122,25 @@ export class WalletService {
     return (await this.getOrProvision(userId)).address;
   }
 
+  /**
+   * Dev faucet: mints `amount` DATE to the user's wallet from the treasury.
+   * Capped per call; in production this would be a purchase flow instead.
+   */
+  async topUp(userId: string, amount: number): Promise<WalletView> {
+    if (!this.chain.available) {
+      throw new ServiceUnavailableException("Blockchain unavailable (run chain:deploy)");
+    }
+    const wallet = await this.getOrProvision(userId);
+    await this.chain.withTreasury(async (treasury, nextNonce) => {
+      await (
+        await this.chain
+          .token(treasury)
+          .mint(wallet.address, parseUnits(String(amount), 18), { nonce: nextNonce() })
+      ).wait();
+    });
+    return this.getView(userId);
+  }
+
   async getView(userId: string): Promise<WalletView> {
     const wallet = await this.getOrProvision(userId);
     const raw: bigint = await this.chain.token().balanceOf(wallet.address);
@@ -206,13 +225,13 @@ export class WalletService {
     }
 
     // ── Dates for tokens (escrow) ──────────────────────────────────────
-    // Money moves at propose (proposer's tokens lock in escrow) and settles at
+    // Money moves at accept (proposer's tokens lock in escrow) and settles at
     // confirm (net to invitee, fee to service). Declined/cancelled-unfunded
     // proposals are fully refunded, so they are omitted.
     const feeBps = this.chain.available ? this.chain.feeBps : 0;
     const dates = await this.dates.find({
       where: [
-        { proposerId: userId, status: In([DateStatus.Proposed, DateStatus.Accepted, DateStatus.Confirmed]) },
+        { proposerId: userId, status: In([DateStatus.Accepted, DateStatus.Confirmed]) },
         { inviteeId: userId, status: DateStatus.Confirmed },
       ],
       order: { createdAt: "DESC" },
@@ -230,7 +249,7 @@ export class WalletService {
         fee: settled ? formatUnits(feeBase, 18) : "0",
         counterpart: { userId: proposer ? d.inviteeId : d.proposerId, displayName: null },
         status: d.status,
-        createdAt: (settled ? d.updatedAt : d.createdAt).toISOString(),
+        createdAt: (settled ? d.updatedAt : (d.acceptedAt ?? d.createdAt)).toISOString(),
       });
     }
 

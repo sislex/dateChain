@@ -27,6 +27,8 @@ export function ProposeDateButton({
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("50");
   const [message, setMessage] = useState("");
+  const [when, setWhen] = useState("");
+  const [place, setPlace] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [proposeDate, { isLoading }] = useProposeDateMutation();
 
@@ -34,10 +36,21 @@ export function ProposeDateButton({
     setError(null);
     const amt = Number(amount);
     if (!Number.isInteger(amt) || amt < 1) return setError("Введите сумму (целое ≥ 1)");
+    if (when && new Date(when).getTime() < Date.now()) {
+      return setError("Дата свидания уже прошла");
+    }
     try {
-      await proposeDate({ inviteeId, amount: amt, message: message.trim() || undefined }).unwrap();
+      await proposeDate({
+        inviteeId,
+        amount: amt,
+        message: message.trim() || undefined,
+        scheduledAt: when ? new Date(when).toISOString() : undefined,
+        location: place.trim() || undefined,
+      }).unwrap();
       setOpen(false);
       setMessage("");
+      setWhen("");
+      setPlace("");
       navigate("/app/dates");
     } catch (err) {
       const msg = (err as { data?: { message?: string } }).data?.message;
@@ -57,6 +70,18 @@ export function ProposeDateButton({
           inputMode="numeric"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
+        />
+        <Input
+          label="Когда (необязательно)"
+          type="datetime-local"
+          value={when}
+          onChange={(e) => setWhen(e.target.value)}
+        />
+        <Input
+          label="Где (необязательно)"
+          placeholder="Кафе, парк, адрес…"
+          value={place}
+          onChange={(e) => setPlace(e.target.value)}
         />
         <Input
           label="Сообщение (необязательно)"

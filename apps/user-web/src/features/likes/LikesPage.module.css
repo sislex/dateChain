@@ -85,6 +85,13 @@
   font-weight: var(--dc-font-weight-semibold);
 }
 
+.ratingBadge {
+  color: #e8a13c;
+  font-size: var(--dc-font-size-sm);
+  font-weight: var(--dc-font-weight-semibold);
+  white-space: nowrap;
+}
+
 .actions {
   display: flex;
   flex-direction: column;

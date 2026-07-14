@@ -1,8 +1,9 @@
-import { Controller, Get } from "@nestjs/common";
+import { Body, Controller, Get, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
 import { CurrentUser, type AuthenticatedUser } from "../auth/decorators";
 
+import { TopUpDto } from "./dto";
 import { WalletService } from "./wallet.service";
 
 @ApiTags("wallet")
@@ -27,5 +28,11 @@ export class WalletController {
   @Get("history")
   history(@CurrentUser() user: AuthenticatedUser) {
     return this.wallet.history(user.userId);
+  }
+
+  /** Dev faucet: top up the wallet with DATE from the treasury. */
+  @Post("topup")
+  topUp(@CurrentUser() user: AuthenticatedUser, @Body() dto: TopUpDto) {
+    return this.wallet.topUp(user.userId, dto.amount);
   }
 }
