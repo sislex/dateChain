@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { useSocketEvent } from "../../socket/useSocketEvent";
 
@@ -22,6 +23,19 @@ const LABELS: Record<NotificationType, string> = {
   TRANSFER_RECEIVED: "Вам перевели токены ↗",
 };
 
+/** Where clicking a notification takes the user. */
+const ROUTES: Partial<Record<NotificationType, string>> = {
+  MATCH: "/app/chats",
+  MESSAGE: "/app/chats",
+  SUPER_LIKE: "/app/likes",
+  DATE_PROPOSED: "/app/dates",
+  DATE_ACCEPTED: "/app/dates",
+  DATE_DECLINED: "/app/dates",
+  DATE_CONFIRMED: "/app/dates",
+  DATE_CANCELLED: "/app/dates",
+  TRANSFER_RECEIVED: "/app/wallet",
+};
+
 function timeAgo(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
   const min = Math.floor(diffMs / 60000);
@@ -34,6 +48,7 @@ function timeAgo(iso: string): string {
 
 export function NotificationsBell() {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
   const { data: notifications, refetch } = useGetNotificationsQuery();
   const [markRead] = useMarkNotificationsReadMutation();
 
@@ -79,12 +94,26 @@ export function NotificationsBell() {
             <div className={styles.header}>Уведомления</div>
             {list.length === 0 && <div className={styles.empty}>Пока пусто</div>}
             <ul className={styles.list}>
-              {list.slice(0, 30).map((n) => (
-                <li key={n.id} className={n.readAt ? styles.item : styles.itemUnread}>
-                  <span className={styles.itemLabel}>{LABELS[n.type] ?? n.type}</span>
-                  <span className={styles.itemTime}>{timeAgo(n.createdAt)}</span>
-                </li>
-              ))}
+              {list.slice(0, 30).map((n) => {
+                const route = ROUTES[n.type];
+                return (
+                  <li key={n.id} className={n.readAt ? styles.item : styles.itemUnread}>
+                    <button
+                      type="button"
+                      className={styles.itemButton}
+                      disabled={!route}
+                      onClick={() => {
+                        if (!route) return;
+                        setOpen(false);
+                        navigate(route);
+                      }}
+                    >
+                      <span className={styles.itemLabel}>{LABELS[n.type] ?? n.type}</span>
+                      <span className={styles.itemTime}>{timeAgo(n.createdAt)}</span>
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </>

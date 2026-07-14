@@ -180,6 +180,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/wallet/topup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["WalletController_topUp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/profile/me": {
         parameters: {
             query?: never;
@@ -494,6 +510,38 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["DatesController_cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dates/{id}/refuse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DatesController_refuse"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dates/{id}/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DatesController_claim"];
         delete?: never;
         options?: never;
         head?: never;
@@ -865,6 +913,10 @@ export interface components {
             /** @description TOTP code, required if 2FA is enabled */
             totp?: string;
         };
+        TopUpDto: {
+            /** @description Amount in whole DATE */
+            amount: number;
+        };
         UpsertProfileDto: {
             displayName: string;
             /**
@@ -908,6 +960,10 @@ export interface components {
             amount: number;
             /** @description Optional opening message */
             message?: string;
+            /** @description Planned date/time of the meeting (ISO 8601) */
+            scheduledAt?: string;
+            /** @description Planned meeting place */
+            location?: string;
         };
         RateDto: {
             score: number;
@@ -1160,6 +1216,27 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WalletController_topUp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TopUpDto"];
+            };
+        };
+        responses: {
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1604,6 +1681,44 @@ export interface operations {
         };
     };
     DatesController_cancel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DatesController_refuse: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DatesController_claim: {
         parameters: {
             query?: never;
             header?: never;

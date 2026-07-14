@@ -39,6 +39,17 @@
   color: var(--dc-color-text-secondary);
 }
 
+.when {
+  margin: var(--dc-space-1) 0 0;
+  font-size: var(--dc-font-size-sm);
+  color: var(--dc-color-text-secondary);
+}
+
+.error {
+  color: var(--dc-color-nope, #c62828);
+  font-size: var(--dc-font-size-sm);
+}
+
 .tabs {
   display: flex;
   gap: var(--dc-space-2);

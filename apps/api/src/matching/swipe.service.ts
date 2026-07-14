@@ -119,14 +119,21 @@ export class SwipeService {
       age: string | number;
       photoId: string | null;
       action: string;
+      rating: string | number | null;
+      rating_count: string | number | null;
     }> = await this.swipes.query(
       `
       SELECT s."actorId" AS "userId", p."displayName", p.gender,
              date_part('year', age(p."birthDate")) AS age,
-             ph.id AS "photoId", s.action
+             ph.id AS "photoId", s.action,
+             rt.avg AS rating, rt.cnt AS rating_count
       FROM swipes s
       JOIN profiles p ON p."userId" = s."actorId"
       LEFT JOIN photos ph ON ph."userId" = s."actorId" AND ph."isMain" = true
+      LEFT JOIN (
+        SELECT "rateeId", avg(score) AS avg, count(*) AS cnt
+        FROM ratings GROUP BY "rateeId"
+      ) rt ON rt."rateeId" = s."actorId"
       WHERE s."targetId" = $1
         AND s.action IN ('LIKE','SUPER_LIKE')
         AND NOT EXISTS (
@@ -148,6 +155,8 @@ export class SwipeService {
       age: Math.trunc(Number(r.age)),
       photoId: r.photoId,
       superLike: r.action === "SUPER_LIKE",
+      rating: r.rating === null ? null : Math.round(Number(r.rating) * 10) / 10,
+      ratingCount: Number(r.rating_count ?? 0),
     }));
   }
 }
@@ -159,4 +168,7 @@ export interface IncomingLike {
   age: number;
   photoId: string | null;
   superLike: boolean;
+  /** Average date rating (1–5, one decimal) or null if not rated yet. */
+  rating: number | null;
+  ratingCount: number;
 }

@@ -26,10 +26,15 @@ export interface DateView {
   status: DateStatus;
   amount: string;
   message: string | null;
+  /** Planned date/time and place of the meeting (if the proposer set them). */
+  scheduledAt: Date | null;
+  location: string | null;
   counterpart: { userId: string; displayName: string | null };
   matchId: string | null;
   /** The score the viewer already gave for this date (null if not rated). */
   myRating: number | null;
+  /** When the invitee may claim the payout if the proposer stays silent. */
+  claimAvailableAt: Date | null;
   createdAt: Date;
 }
 
@@ -59,11 +64,25 @@ export class DatesService {
     }
   }
 
+  /** Cached on-chain claim timeout (seconds); refreshed lazily. */
+  private claimTimeoutCache: { value: number; fetchedAt: number } | null = null;
+
+  private async getClaimTimeout(): Promise<number> {
+    const TTL = 5 * 60_000;
+    if (!this.claimTimeoutCache || Date.now() - this.claimTimeoutCache.fetchedAt > TTL) {
+      const timeout: bigint = await this.chain.escrow().claimTimeout();
+      this.claimTimeoutCache = { value: Number(timeout), fetchedAt: Date.now() };
+    }
+    return this.claimTimeoutCache.value;
+  }
+
   async propose(
     proposerId: string,
     inviteeId: string,
     amount: number,
     message?: string,
+    scheduledAt?: string,
+    location?: string,
   ): Promise<DateView> {
     if (proposerId === inviteeId) throw new BadRequestException("Cannot invite yourself");
     const amountBase = parseUnits(String(amount), 18);
@@ -111,6 +130,8 @@ export class DatesService {
         escrowId,
         status: DateStatus.Proposed,
         message: message ?? null,
+        scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
+        location: location?.trim() || null,
         proposeTx,
       }),
     );
@@ -136,6 +157,7 @@ export class DatesService {
       ),
     );
     date.status = DateStatus.Accepted;
+    date.acceptedAt = new Date();
     await this.dates.save(date);
     await this.notifications.create(date.proposerId, NotificationType.DateAccepted, {
       dateId,
@@ -220,6 +242,63 @@ export class DatesService {
     return this.toView(date, userId);
   }
 
+  /** Invitee backs out after accepting: the proposer is refunded in full, no fee. */
+  async refuse(dateId: string, userId: string): Promise<DateView> {
+    const date = await this.requireInvitee(dateId, userId, DateStatus.Accepted);
+    const signer = await this.wallets.signerFor(userId);
+    let settleTx = "";
+    await this.onChain(() =>
+      this.chain.withSigner(signer, async (nextNonce) => {
+        const tx = await this.chain
+          .escrow(signer)
+          .cancelByPayee(date.escrowId, { nonce: nextNonce() });
+        await tx.wait();
+        settleTx = tx.hash;
+      }),
+    );
+    date.status = DateStatus.Declined;
+    date.settleTx = settleTx;
+    await this.dates.save(date);
+    await this.notifications.create(date.proposerId, NotificationType.DateDeclined, {
+      dateId,
+      fromUserId: userId,
+    });
+    await this.audit.record(userId, "date.refuse", { type: "date", id: dateId }, {
+      amount: date.amount,
+      settleTx,
+    });
+    return this.toView(date, userId);
+  }
+
+  /**
+   * Invitee claims the payout when the proposer neither confirmed nor cancelled
+   * within the on-chain claim timeout. Same split as confirm (80/20).
+   */
+  async claim(dateId: string, userId: string): Promise<DateView> {
+    const date = await this.requireInvitee(dateId, userId, DateStatus.Accepted);
+    const signer = await this.wallets.signerFor(userId);
+    let settleTx = "";
+    await this.onChain(() =>
+      this.chain.withSigner(signer, async (nextNonce) => {
+        const tx = await this.chain.escrow(signer).claim(date.escrowId, { nonce: nextNonce() });
+        await tx.wait();
+        settleTx = tx.hash;
+      }),
+    );
+    date.status = DateStatus.Confirmed;
+    date.settleTx = settleTx;
+    await this.dates.save(date);
+    await this.notifications.create(date.proposerId, NotificationType.DateConfirmed, {
+      dateId,
+      fromUserId: userId,
+    });
+    await this.audit.record(userId, "date.claim", { type: "date", id: dateId }, {
+      amount: date.amount,
+      settleTx,
+    });
+    return this.toView(date, userId);
+  }
+
   /** Dates the user is part of (proposer or invitee), newest first. */
   async list(userId: string): Promise<DateView[]> {
     const rows = await this.dates.find({
@@ -276,18 +355,34 @@ export class DatesService {
     });
     const scoreByDate = new Map(myRatings.map((r) => [r.dateId, r.score]));
 
+    let claimTimeoutSec: number | null = null;
+    if (rows.some((d) => d.status === DateStatus.Accepted && d.acceptedAt)) {
+      try {
+        claimTimeoutSec = await this.getClaimTimeout();
+      } catch {
+        /* chain unavailable — omit claimAvailableAt */
+      }
+    }
+
     return rows.map((d) => {
       const isProposer = d.proposerId === viewerId;
       const counterpartId = isProposer ? d.inviteeId : d.proposerId;
+      const claimAvailableAt =
+        d.status === DateStatus.Accepted && d.acceptedAt && claimTimeoutSec !== null
+          ? new Date(d.acceptedAt.getTime() + claimTimeoutSec * 1000)
+          : null;
       return {
         id: d.id,
         role: isProposer ? "proposer" : "invitee",
         status: d.status,
         amount: d.amount,
         message: d.message,
+        scheduledAt: d.scheduledAt,
+        location: d.location,
         counterpart: { userId: counterpartId, displayName: nameByUser.get(counterpartId) ?? null },
         matchId: d.matchId,
         myRating: scoreByDate.get(d.id) ?? null,
+        claimAvailableAt,
         createdAt: d.createdAt,
       };
     });

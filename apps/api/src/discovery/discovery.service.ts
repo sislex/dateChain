@@ -37,8 +37,13 @@ export class DiscoveryService {
                SELECT 1 FROM swipes sl
                WHERE sl."actorId" = p."userId" AND sl."targetId" = $1
                  AND sl.action = 'SUPER_LIKE'
-             ) AS super_liked_you
+             ) AS super_liked_you,
+             rt.avg AS rating, rt.cnt AS rating_count
       FROM profiles p
+      LEFT JOIN (
+        SELECT "rateeId", avg(score) AS avg, count(*) AS cnt
+        FROM ratings GROUP BY "rateeId"
+      ) rt ON rt."rateeId" = p."userId"
       CROSS JOIN (
         SELECT location, gender, "interestedIn", "radiusKm", "ageMin", "ageMax"
         FROM profiles WHERE "userId" = $1

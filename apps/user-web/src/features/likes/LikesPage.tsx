@@ -47,6 +47,11 @@ export function LikesPage() {
               <span className={styles.name}>
                 {l.displayName}, {l.age}
               </span>
+              {l.rating !== null && (
+                <span className={styles.ratingBadge} title={`Оценок: ${l.ratingCount}`}>
+                  ★ {l.rating} ({l.ratingCount})
+                </span>
+              )}
             </div>
             <div className={styles.actions}>
               <Button

@@ -9,6 +9,8 @@ const row: DeckRow = {
   bio: "hi",
   interests: "coffee,hiking",
   super_liked_you: false,
+  rating: null,
+  rating_count: null,
 };
 
 describe("toDeckCandidate", () => {
@@ -36,5 +38,13 @@ describe("toDeckCandidate", () => {
   it("maps the super-liked-you flag", () => {
     expect(toDeckCandidate(row, []).superLikedYou).toBe(false);
     expect(toDeckCandidate({ ...row, super_liked_you: true }, []).superLikedYou).toBe(true);
+  });
+
+  it("rounds the rating to one decimal and defaults the count", () => {
+    expect(toDeckCandidate(row, []).rating).toBeNull();
+    expect(toDeckCandidate(row, []).ratingCount).toBe(0);
+    const rated = toDeckCandidate({ ...row, rating: "4.6667", rating_count: "3" }, []);
+    expect(rated.rating).toBe(4.7);
+    expect(rated.ratingCount).toBe(3);
   });
 });

@@ -240,6 +240,35 @@
         ]
       }
     },
+    "/wallet/topup": {
+      "post": {
+        "operationId": "WalletController_topUp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopUpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "wallet"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
     "/profile/me": {
       "get": {
         "operationId": "ProfilesController_getMine",
@@ -837,6 +866,62 @@
     "/dates/{id}/cancel": {
       "post": {
         "operationId": "DatesController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "dates"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/dates/{id}/refuse": {
+      "post": {
+        "operationId": "DatesController_refuse",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "dates"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/dates/{id}/claim": {
+      "post": {
+        "operationId": "DatesController_claim",
         "parameters": [
           {
             "name": "id",
@@ -1792,6 +1877,20 @@
           "password"
         ]
       },
+      "TopUpDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10000,
+            "description": "Amount in whole DATE"
+          }
+        },
+        "required": [
+          "amount"
+        ]
+      },
       "UpsertProfileDto": {
         "type": "object",
         "properties": {
@@ -1941,6 +2040,14 @@
           "message": {
             "type": "string",
             "description": "Optional opening message"
+          },
+          "scheduledAt": {
+            "type": "string",
+            "description": "Planned date/time of the meeting (ISO 8601)"
+          },
+          "location": {
+            "type": "string",
+            "description": "Planned meeting place"
           }
         },
         "required": [

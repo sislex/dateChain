@@ -95,6 +95,67 @@ describe("DateEscrow", () => {
     expect((await escrow.escrows(id)).status).to.equal(5); // Declined
   });
 
+  describe("cancelByPayee (payee backs out after accept)", () => {
+    it("refunds the proposer in full without a fee", async () => {
+      const { escrow, token, proposer, payee, service } = await deploy();
+      const id = await propose(escrow, proposer, payee);
+      const before = await token.balanceOf(proposer.address);
+      await escrow.connect(payee).accept(id);
+      await escrow.connect(payee).cancelByPayee(id);
+      expect(await token.balanceOf(proposer.address)).to.equal(before);
+      expect(await token.balanceOf(service.address)).to.equal(0n);
+      expect(await token.balanceOf(payee.address)).to.equal(0n);
+      expect((await escrow.escrows(id)).status).to.equal(5); // Declined
+    });
+
+    it("only the payee can back out, and only after accept", async () => {
+      const { escrow, proposer, payee, outsider } = await deploy();
+      const id = await propose(escrow, proposer, payee);
+      await expect(escrow.connect(payee).cancelByPayee(id)).to.be.revertedWith("bad status");
+      await escrow.connect(payee).accept(id);
+      await expect(escrow.connect(proposer).cancelByPayee(id)).to.be.revertedWith("not payee");
+      await expect(escrow.connect(outsider).cancelByPayee(id)).to.be.revertedWith("not payee");
+    });
+  });
+
+  describe("claim (payout after confirm timeout)", () => {
+    it("pays the payee 80/20 after the timeout", async () => {
+      const { escrow, token, proposer, payee, service } = await deploy();
+      const id = await propose(escrow, proposer, payee);
+      await escrow.connect(payee).accept(id);
+      await ethers.provider.send("evm_increaseTime", [7 * 24 * 3600 + 1]);
+      await ethers.provider.send("evm_mine", []);
+      await escrow.connect(payee).claim(id);
+      expect(await token.balanceOf(payee.address)).to.equal((AMOUNT * 80n) / 100n);
+      expect(await token.balanceOf(service.address)).to.equal((AMOUNT * 20n) / 100n);
+      expect((await escrow.escrows(id)).status).to.equal(3); // Confirmed
+    });
+
+    it("reverts before the timeout and for non-payee", async () => {
+      const { escrow, proposer, payee, outsider } = await deploy();
+      const id = await propose(escrow, proposer, payee);
+      await escrow.connect(payee).accept(id);
+      await expect(escrow.connect(payee).claim(id)).to.be.revertedWith("too early");
+      await ethers.provider.send("evm_increaseTime", [7 * 24 * 3600 + 1]);
+      await ethers.provider.send("evm_mine", []);
+      await expect(escrow.connect(outsider).claim(id)).to.be.revertedWith("not payee");
+      await expect(escrow.connect(proposer).claim(id)).to.be.revertedWith("not payee");
+    });
+
+    it("owner can shorten the timeout; floor is 1 hour", async () => {
+      const { escrow, owner, proposer, payee } = await deploy();
+      await expect(escrow.connect(owner).setClaimTimeout(60)).to.be.revertedWith("timeout<1h");
+      await escrow.connect(owner).setClaimTimeout(3600);
+      await expect(escrow.connect(proposer).setClaimTimeout(3600)).to.be.reverted;
+      const id = await propose(escrow, proposer, payee);
+      await escrow.connect(payee).accept(id);
+      await ethers.provider.send("evm_increaseTime", [3601]);
+      await ethers.provider.send("evm_mine", []);
+      await escrow.connect(payee).claim(id);
+      expect((await escrow.escrows(id)).status).to.equal(3); // Confirmed
+    });
+  });
+
   describe("access control & invalid transitions", () => {
     it("only the payee can accept/decline", async () => {
       const { escrow, proposer, payee, outsider } = await deploy();

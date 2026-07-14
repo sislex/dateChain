@@ -19,6 +19,7 @@
     "gen:types": "pnpm gen:openapi && pnpm --filter @datechain/api-client gen:types",
     "seed": "pnpm --filter @datechain/api seed",
     "reset": "pnpm --filter @datechain/api reset",
+    "cleanup:dates": "pnpm --filter @datechain/api cleanup:dates",
     "chain:node": "pnpm --filter @datechain/contracts chain:node",
     "chain:deploy": "pnpm --filter @datechain/contracts chain:deploy",
     "chain:test": "pnpm --filter @datechain/contracts chain:test"

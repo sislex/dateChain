@@ -21,6 +21,9 @@ export interface DeckCandidate {
   interests: string[];
   photos: DeckPhoto[];
   superLikedYou: boolean;
+  /** Average date rating (1–5, one decimal) or null if not rated yet. */
+  rating: number | null;
+  ratingCount: number;
 }
 
 export interface SwipeResult {

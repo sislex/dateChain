@@ -17,6 +17,7 @@
     "openapi:generate": "ts-node src/scripts/generate-openapi.ts",
     "seed": "ts-node src/scripts/seed.ts",
     "reset": "ts-node src/scripts/reset.ts",
+    "cleanup:dates": "ts-node src/scripts/cleanup-stale-dates.ts",
     "photos:candidates": "ts-node src/scripts/set-candidate-photos.ts",
     "likes:arm": "ts-node src/scripts/arm-likes.ts",
     "scenarios": "ts-node src/scripts/api-scenarios.ts"
