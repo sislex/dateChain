@@ -92,8 +92,10 @@ export class TransfersService {
         txHash,
       }),
     );
+    const fromProfile = await this.profiles.findOne({ where: { userId: fromId } });
     await this.notifications.create(toId, NotificationType.TransferReceived, {
       fromUserId: fromId,
+      fromName: fromProfile?.displayName ?? null,
       amount: formatUnits(netBase, 18),
     });
     await this.audit.record(fromId, "transfer.send", { type: "transfer", id: transfer.id }, {

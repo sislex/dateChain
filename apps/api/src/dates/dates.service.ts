@@ -92,6 +92,7 @@ export class DatesService implements OnModuleInit, OnModuleDestroy {
       await this.notifications.create(d.inviteeId, NotificationType.DateClaimAvailable, {
         dateId: d.id,
         fromUserId: d.proposerId,
+        fromName: await this.nameOf(d.proposerId),
         amount: d.amount,
       });
       d.claimNotifiedAt = new Date();
@@ -123,6 +124,12 @@ export class DatesService implements OnModuleInit, OnModuleDestroy {
       await this.dates.save(d);
       this.logger.log(`reminder sent for date ${d.id}`);
     }
+  }
+
+  /** Display name of a user for notification texts (null if no profile yet). */
+  private async nameOf(userId: string): Promise<string | null> {
+    const profile = await this.profiles.findOne({ where: { userId } });
+    return profile?.displayName ?? null;
   }
 
   /** Translates an on-chain revert into a 400 instead of a 500. */
@@ -224,6 +231,7 @@ export class DatesService implements OnModuleInit, OnModuleDestroy {
     await this.notifications.create(inviteeId, NotificationType.DateProposed, {
       dateId: date.id,
       fromUserId: proposerId,
+      fromName: await this.nameOf(proposerId),
       amount: String(amount),
     });
     await this.audit.record(proposerId, "date.propose", { type: "date", id: date.id }, {
@@ -248,6 +256,7 @@ export class DatesService implements OnModuleInit, OnModuleDestroy {
     await this.notifications.create(date.proposerId, NotificationType.DateAccepted, {
       dateId,
       fromUserId: userId,
+      fromName: await this.nameOf(userId),
     });
     await this.audit.record(userId, "date.accept", { type: "date", id: dateId }, {
       amount: date.amount,
@@ -268,6 +277,7 @@ export class DatesService implements OnModuleInit, OnModuleDestroy {
     await this.notifications.create(date.proposerId, NotificationType.DateDeclined, {
       dateId,
       fromUserId: userId,
+      fromName: await this.nameOf(userId),
     });
     await this.audit.record(userId, "date.decline", { type: "date", id: dateId });
     return this.toView(date, userId);
@@ -290,6 +300,8 @@ export class DatesService implements OnModuleInit, OnModuleDestroy {
     await this.notifications.create(date.inviteeId, NotificationType.DateConfirmed, {
       dateId,
       fromUserId: userId,
+      fromName: await this.nameOf(userId),
+      amount: date.amount,
     });
     await this.audit.record(userId, "date.confirm", { type: "date", id: dateId }, {
       amount: date.amount,
@@ -319,6 +331,8 @@ export class DatesService implements OnModuleInit, OnModuleDestroy {
     await this.notifications.create(date.inviteeId, NotificationType.DateCancelled, {
       dateId,
       fromUserId: userId,
+      fromName: await this.nameOf(userId),
+      amount: date.amount,
     });
     await this.audit.record(userId, "date.cancel", { type: "date", id: dateId }, {
       amount: date.amount,
@@ -348,6 +362,7 @@ export class DatesService implements OnModuleInit, OnModuleDestroy {
     await this.notifications.create(date.proposerId, NotificationType.DateDeclined, {
       dateId,
       fromUserId: userId,
+      fromName: await this.nameOf(userId),
     });
     await this.audit.record(userId, "date.refuse", { type: "date", id: dateId }, {
       amount: date.amount,
@@ -377,6 +392,8 @@ export class DatesService implements OnModuleInit, OnModuleDestroy {
     await this.notifications.create(date.proposerId, NotificationType.DateConfirmed, {
       dateId,
       fromUserId: userId,
+      fromName: await this.nameOf(userId),
+      amount: date.amount,
     });
     await this.audit.record(userId, "date.claim", { type: "date", id: dateId }, {
       amount: date.amount,

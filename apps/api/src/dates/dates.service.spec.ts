@@ -76,7 +76,10 @@ function makeService(date?: DateEntity) {
   };
   const service = new DatesService(
     dates as never,
-    { find: jest.fn().mockResolvedValue([]) } as never, // profiles
+    {
+      find: jest.fn().mockResolvedValue([]),
+      findOne: jest.fn().mockResolvedValue({ displayName: "Анна" }),
+    } as never, // profiles
     { find: jest.fn().mockResolvedValue([]) } as never, // ratings
     chain as never,
     { signerFor: jest.fn().mockResolvedValue({ address: "0xSig" }), addressOf: jest.fn().mockResolvedValue("0xTo") } as never,

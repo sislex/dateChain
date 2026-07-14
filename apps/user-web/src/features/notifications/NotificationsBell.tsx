@@ -16,14 +16,23 @@ const LABELS: Record<NotificationType, string> = {
   SUPER_LIKE: "Вас суперлайкнули ★",
   SYSTEM: "Системное уведомление",
   DATE_PROPOSED: "Вам предложили свидание 💎",
-  DATE_ACCEPTED: "Свидание принято ✅",
-  DATE_DECLINED: "Свидание отклонено",
+  DATE_ACCEPTED: "Ваше приглашение приняли ✅",
+  DATE_DECLINED: "Ваше приглашение отклонили",
   DATE_CONFIRMED: "Свидание подтверждено — токены переведены",
-  DATE_CANCELLED: "Свидание отменено",
+  DATE_CANCELLED: "Приглашение на свидание отменено ❌",
   DATE_CLAIM_AVAILABLE: "Инициатор не подтвердил свидание — заберите выплату 💰",
   DATE_REMINDER: "Сегодня у вас свидание 📅",
   TRANSFER_RECEIVED: "Вам перевели токены ↗",
 };
+
+/** "Анна: Вам предложили свидание 💎 (50 DATE)" — name and amount when known. */
+function describe(n: { type: NotificationType; payload?: Record<string, unknown> | null }): string {
+  const base = LABELS[n.type] ?? n.type;
+  const fromName = typeof n.payload?.fromName === "string" ? n.payload.fromName : null;
+  const amount = n.payload?.amount != null ? Number(n.payload.amount) : null;
+  const withAmount = amount ? `${base} (${amount} DATE)` : base;
+  return fromName ? `${fromName}: ${withAmount}` : withAmount;
+}
 
 /** Where clicking a notification takes the user. */
 const ROUTES: Partial<Record<NotificationType, string>> = {
@@ -59,6 +68,7 @@ export function NotificationsBell() {
   // Refresh the badge when real-time events arrive.
   useSocketEvent("match:new", () => refetch());
   useSocketEvent("message:new", () => refetch());
+  useSocketEvent("notification:new", () => refetch());
 
   const list = notifications ?? [];
   const unread = list.filter((n) => !n.readAt).length;
@@ -112,7 +122,7 @@ export function NotificationsBell() {
                         navigate(route);
                       }}
                     >
-                      <span className={styles.itemLabel}>{LABELS[n.type] ?? n.type}</span>
+                      <span className={styles.itemLabel}>{describe(n)}</span>
                       <span className={styles.itemTime}>{timeAgo(n.createdAt)}</span>
                     </button>
                   </li>
