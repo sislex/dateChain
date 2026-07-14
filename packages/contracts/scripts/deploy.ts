@@ -35,12 +35,20 @@ async function main(): Promise<void> {
 
   // Reuse the existing token (and its balances) when redeploying only the
   // escrow; deploy a fresh token otherwise (or with FRESH_TOKEN=true).
+  // A prior address is only trusted if the contract still exists on-chain —
+  // after a node restart the chain is empty and the file is stale.
+  const priorTokenLive =
+    prior !== null && (await ethers.provider.getCode(prior.token.address)) !== "0x";
   let tokenAddress: string;
-  if (prior) {
+  if (prior && priorTokenLive) {
     tokenAddress = prior.token.address;
     // eslint-disable-next-line no-console
     console.log(`Reusing token ${tokenAddress} (balances preserved)`);
   } else {
+    if (prior) {
+      // eslint-disable-next-line no-console
+      console.log(`Prior token ${prior.token.address} has no code on this chain — deploying fresh`);
+    }
     const Token = await ethers.getContractFactory("DateToken");
     const token = await Token.deploy(deployer.address);
     await token.waitForDeployment();
@@ -50,7 +58,7 @@ async function main(): Promise<void> {
 
   // Preserve the live service wallet from a prior escrow if present.
   let serviceWallet = process.env.SERVICE_WALLET_ADDRESS ?? deployer.address;
-  if (prior) {
+  if (prior && (await ethers.provider.getCode(prior.escrow.address)) !== "0x") {
     const priorEscrow = await ethers.getContractAt("DateEscrow", prior.escrow.address);
     try {
       serviceWallet = await priorEscrow.serviceWallet();
