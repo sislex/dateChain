@@ -30,9 +30,12 @@ function emitToBus(event: string, payload: unknown): void {
 }
 
 /** RTK Query cache tags to refresh when a push notification of a given type arrives. */
-function tagsFor(type: string): Array<"Date" | "Wallet"> {
+function tagsFor(type: string): Array<"Date" | "Wallet" | "Match"> {
   if (type.startsWith("DATE_")) return ["Date", "Wallet"];
   if (type === "TRANSFER_RECEIVED") return ["Wallet"];
+  // A MESSAGE/MATCH notification reaches the personal room even when the user
+  // is not inside the chat — refresh previews (unread badges) from it.
+  if (type === "MESSAGE" || type === "MATCH") return ["Match"];
   return [];
 }
 
@@ -51,17 +54,24 @@ export function createSocketMiddleware(): Middleware {
         const tags = tagsFor(payload?.type ?? "");
         if (tags.length > 0) store.dispatch(baseApi.util.invalidateTags(tags));
       });
+      // Keep match previews (and the unread-messages badge) current everywhere.
+      socket.on("message:new", () => store.dispatch(baseApi.util.invalidateTags(["Match"])));
+      socket.on("match:new", () => store.dispatch(baseApi.util.invalidateTags(["Match"])));
       sharedSocket = socket;
     };
 
     return (next) => (action) => {
       const result = next(action);
+      const token = (store.getState() as { auth: AuthState }).auth.accessToken;
       if (setCredentials.match(action) || setTokens.match(action)) {
-        const token = (store.getState() as { auth: AuthState }).auth.accessToken;
         if (token) connect(token);
       } else if (logout.match(action)) {
         sharedSocket?.disconnect();
         sharedSocket = null;
+      } else if (!sharedSocket && token) {
+        // Session restored from storage on page load — no auth action is
+        // dispatched, so connect on the first action we see.
+        connect(token);
       }
       return result;
     };

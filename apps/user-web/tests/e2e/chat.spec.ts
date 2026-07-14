@@ -58,6 +58,9 @@ test("matches list shows conversations and opens a chat", async ({ page }) => {
 
   await page.goto("/app/chats");
   await expect(page.getByTestId("matches-page")).toBeVisible();
+  // Unread badges: a numeric one on the conversation card and the total on the nav item.
+  await expect(page.getByTestId("unread-count")).toHaveText("1");
+  await expect(page.getByRole("button", { name: "Чаты" })).toContainText("1");
   await page.getByText("Kate").click();
   await expect(page.getByTestId("chat-page")).toBeVisible();
 });
