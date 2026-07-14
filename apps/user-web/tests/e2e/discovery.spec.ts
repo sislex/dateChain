@@ -20,6 +20,10 @@ async function authenticate(page: Page): Promise<void> {
   await page.addInitScript((auth) => {
     localStorage.setItem("datechain.auth", JSON.stringify(auth));
   }, AUTH);
+  // Fallback so unmocked API calls never reach a live backend on :3000.
+  await page.route("**/api/**", (r) =>
+    r.fulfill({ status: 503, contentType: "application/json", body: "{}" }),
+  );
   await page.route("**/socket.io/**", (r) => r.abort());
   await page.route("**/api/profile/me/photos", (r) =>
     r.fulfill({ status: 200, contentType: "application/json", body: "[]" }),
