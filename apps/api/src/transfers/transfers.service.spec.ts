@@ -5,7 +5,7 @@ import { TransfersService } from "./transfers.service";
 
 interface Mocks {
   transfers: { create: jest.Mock; save: jest.Mock; find: jest.Mock };
-  profiles: { find: jest.Mock };
+  profiles: { find: jest.Mock; findOne: jest.Mock };
   chain: Record<string, unknown>;
   wallets: { signerFor: jest.Mock; addressOf: jest.Mock };
   notifications: { create: jest.Mock };
@@ -41,7 +41,10 @@ function makeService(balance = parseUnits("100", 18)): { service: TransfersServi
       ),
       find: jest.fn().mockResolvedValue([]),
     },
-    profiles: { find: jest.fn().mockResolvedValue([]) },
+    profiles: {
+      find: jest.fn().mockResolvedValue([]),
+      findOne: jest.fn().mockResolvedValue({ displayName: "Анна" }),
+    },
     chain,
     wallets: {
       signerFor: jest.fn().mockResolvedValue({ address: "0xFrom" }),

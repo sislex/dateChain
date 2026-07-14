@@ -8,9 +8,11 @@ import { hasRank, selectRole } from "../store/authSlice";
 import styles from "./UsersPage.module.css";
 import { useImpersonateMutation, useListUsersQuery, useSetUserStatusMutation } from "./adminApi";
 
-/** user-web origin the impersonated session opens in. */
+/** user-web origin the impersonated session opens in. Defaults to the same
+ * host the admin panel is opened on (works from LAN devices too). */
 const USER_WEB_URL =
-  (import.meta.env.VITE_USER_WEB_URL as string | undefined) ?? "http://localhost:5175";
+  (import.meta.env.VITE_USER_WEB_URL as string | undefined) ??
+  `${window.location.protocol}//${window.location.hostname}:5175`;
 
 export function UsersPage() {
   const role = useAppSelector(selectRole);
