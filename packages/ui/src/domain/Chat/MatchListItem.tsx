@@ -8,6 +8,8 @@ export interface MatchListItemProps {
   photo?: string;
   preview?: string;
   unread?: boolean;
+  /** Number of unread messages; when > 0 a numeric badge replaces the dot. */
+  unreadCount?: number;
   isNewMatch?: boolean;
   onClick?: () => void;
 }
@@ -17,6 +19,7 @@ export function MatchListItem({
   photo,
   preview,
   unread = false,
+  unreadCount = 0,
   isNewMatch = false,
   onClick,
 }: MatchListItemProps) {
@@ -29,10 +32,16 @@ export function MatchListItem({
           {preview ?? (isNewMatch ? "Новый мэтч — напишите первым!" : "")}
         </span>
       </span>
-      {unread && (
-        <span className={styles.unreadDot}>
-          <Badge dot />
+      {unreadCount > 0 ? (
+        <span className={styles.unreadDot} data-testid="unread-count">
+          <Badge>{unreadCount > 99 ? "99+" : unreadCount}</Badge>
         </span>
+      ) : (
+        unread && (
+          <span className={styles.unreadDot}>
+            <Badge dot />
+          </span>
+        )
       )}
     </button>
   );

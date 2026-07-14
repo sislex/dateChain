@@ -86,6 +86,7 @@ export function MatchesPage() {
                 photo={m.partner.photoId ? photoUrl(m.partner.photoId, "thumb") : undefined}
                 preview={m.lastMessage?.text ?? ""}
                 unread={m.unreadCount > 0}
+                unreadCount={m.unreadCount}
                 onClick={() => navigate(`/app/chats/${m.matchId}`)}
               />
             </div>
