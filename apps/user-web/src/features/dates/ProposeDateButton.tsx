@@ -2,7 +2,7 @@ import { Button, Input, Modal } from "@datechain/ui";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useProposeDateMutation } from "./datesApi";
+import { useGetDateFeeQuery, useProposeDateMutation } from "./datesApi";
 
 interface Props {
   inviteeId: string;
@@ -31,6 +31,8 @@ export function ProposeDateButton({
   const [place, setPlace] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [proposeDate, { isLoading }] = useProposeDateMutation();
+  const { data: feeData } = useGetDateFeeQuery();
+  const feePct = feeData ? feeData.feeBps / 100 : 20;
 
   async function submit() {
     setError(null);
@@ -90,8 +92,8 @@ export function ProposeDateButton({
           error={error ?? undefined}
         />
         <p style={{ fontSize: 13, opacity: 0.7 }}>
-          Токены заморозятся после согласия. При подтверждении 80% получит партнёр, 20% — комиссия
-          сервиса.
+          Токены заморозятся после согласия. При подтверждении {100 - feePct}% получит партнёр,{" "}
+          {feePct}% — комиссия сервиса.
         </p>
         <Button fullWidth size="lg" disabled={isLoading} onClick={submit}>
           Предложить

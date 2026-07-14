@@ -62,6 +62,14 @@ export class DateEntity {
   @Column({ type: "timestamptz", nullable: true })
   acceptedAt!: Date | null;
 
+  /** When the "claim available" notification was sent (job bookkeeping). */
+  @Column({ type: "timestamptz", nullable: true })
+  claimNotifiedAt!: Date | null;
+
+  /** When the day-of-date reminder was sent (job bookkeeping). */
+  @Column({ type: "timestamptz", nullable: true })
+  reminderSentAt!: Date | null;
+
   @Column({ type: "varchar", length: 66, nullable: true })
   proposeTx!: string | null;
 

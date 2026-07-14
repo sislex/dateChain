@@ -167,3 +167,10 @@
   justify-content: center;
   padding: var(--dc-space-2);
 }
+
+.hash {
+  font-family: monospace;
+  font-size: var(--dc-font-size-xs);
+  color: var(--dc-color-text-secondary);
+  white-space: nowrap;
+}

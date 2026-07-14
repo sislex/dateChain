@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, ServiceUnavailableException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { formatUnits, parseUnits } from "ethers";
 import { In, Repository } from "typeorm";
@@ -35,6 +35,9 @@ export class TransfersService {
 
   /** Transfer commission (bps) — read from the escrow contract. */
   async getFeeBps(): Promise<number> {
+    if (!this.chain.available) {
+      throw new ServiceUnavailableException("Blockchain unavailable (run chain:deploy)");
+    }
     const bps: bigint = await this.chain.escrow().transferFeeBps();
     return Number(bps);
   }

@@ -3,6 +3,8 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import { NotificationsBell } from "../features/notifications/NotificationsBell";
 import { useBreakpoint } from "../hooks/useBreakpoint";
+import { useAppDispatch, useAppSelector } from "../store";
+import { logout, selectCurrentUser, selectIsImpersonated } from "../store/authSlice";
 
 import styles from "./AppLayout.module.css";
 
@@ -20,13 +22,33 @@ export function AppLayout() {
   const bp = useBreakpoint();
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useAppDispatch();
+  const impersonated = useAppSelector(selectIsImpersonated);
+  const user = useAppSelector(selectCurrentUser);
   const activeId =
     NAV_ITEMS.find((i) => location.pathname.startsWith(`/app/${i.id}`))?.id ?? "discovery";
   const onSelect = (id: string) => navigate(`/app/${id}`);
   const isMobile = bp === "mobile";
 
+  const exitImpersonation = () => {
+    dispatch(logout());
+    window.close();
+    // If the browser refuses to close the tab (not script-opened), fall back.
+    navigate("/welcome", { replace: true });
+  };
+
   return (
-    <div className={isMobile ? styles.mobile : styles.desktop}>
+    <div className={styles.shell}>
+      {impersonated && (
+        <div className={styles.impersonationBanner} data-testid="impersonation-banner">
+          ⚠️ Режим администратора: вы вошли как{" "}
+          <strong>{user?.phone ?? user?.email ?? user?.id ?? "пользователь"}</strong>
+          <button type="button" className={styles.impersonationExit} onClick={exitImpersonation}>
+            Выйти
+          </button>
+        </div>
+      )}
+      <div className={isMobile ? styles.mobile : styles.desktop}>
       {!isMobile && (
         <aside className={styles.sidebar}>
           <div className={styles.brand}>
@@ -45,6 +67,7 @@ export function AppLayout() {
           <BottomNav items={NAV_ITEMS} activeId={activeId} onSelect={onSelect} />
         </nav>
       )}
+      </div>
     </div>
   );
 }

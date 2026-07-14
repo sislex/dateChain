@@ -50,6 +50,8 @@ export interface WalletHistoryItem {
   counterpart: { userId: string | null; displayName: string | null };
   /** Date lifecycle status — only for type "date". */
   status: DateStatus | null;
+  /** On-chain transaction hash of the settling transaction (if known). */
+  txHash: string | null;
   createdAt: string;
 }
 
@@ -220,18 +222,23 @@ export class WalletService {
         fee: t.fee,
         counterpart: { userId: outgoing ? t.toId : t.fromId, displayName: null },
         status: null,
+        txHash: t.txHash,
         createdAt: t.createdAt.toISOString(),
       });
     }
 
     // ── Dates for tokens (escrow) ──────────────────────────────────────
     // Money moves at accept (proposer's tokens lock in escrow) and settles at
-    // confirm (net to invitee, fee to service). Declined/cancelled-unfunded
-    // proposals are fully refunded, so they are omitted.
+    // confirm (net to invitee, fee to service) or at cancel-after-accept
+    // (20% penalty from the proposer). Declined/cancelled-unfunded proposals
+    // are fully refunded, so they are omitted.
     const feeBps = this.chain.available ? this.chain.feeBps : 0;
     const dates = await this.dates.find({
       where: [
-        { proposerId: userId, status: In([DateStatus.Accepted, DateStatus.Confirmed]) },
+        {
+          proposerId: userId,
+          status: In([DateStatus.Accepted, DateStatus.Confirmed, DateStatus.Cancelled]),
+        },
         { inviteeId: userId, status: DateStatus.Confirmed },
       ],
       order: { createdAt: "DESC" },
@@ -240,7 +247,24 @@ export class WalletService {
       const proposer = d.proposerId === userId;
       const amountBase = parseUnits(d.amount, 18);
       const feeBase = (amountBase * BigInt(feeBps)) / 10000n;
-      const settled = d.status === DateStatus.Confirmed;
+      const settled = d.status !== DateStatus.Accepted;
+      if (d.status === DateStatus.Cancelled) {
+        // Penalty applies only when the escrow was funded (accepted first);
+        // an unfunded cancel moved no money and is not part of the history.
+        if (!d.acceptedAt) continue;
+        items.push({
+          id: `date:${d.id}`,
+          type: "date",
+          direction: "out",
+          amount: formatUnits(feeBase, 18),
+          fee: formatUnits(feeBase, 18),
+          counterpart: { userId: d.inviteeId, displayName: null },
+          status: d.status,
+          txHash: d.settleTx,
+          createdAt: d.updatedAt.toISOString(),
+        });
+        continue;
+      }
       items.push({
         id: `date:${d.id}`,
         type: "date",
@@ -249,6 +273,7 @@ export class WalletService {
         fee: settled ? formatUnits(feeBase, 18) : "0",
         counterpart: { userId: proposer ? d.inviteeId : d.proposerId, displayName: null },
         status: d.status,
+        txHash: settled ? d.settleTx : d.proposeTx,
         createdAt: (settled ? d.updatedAt : (d.acceptedAt ?? d.createdAt)).toISOString(),
       });
     }
@@ -278,6 +303,7 @@ export class WalletService {
           fee: "0",
           counterpart: { userId: null, displayName: null },
           status: null,
+          txHash: ev.transactionHash,
           createdAt: new Date(blockTs.get(ev.blockNumber)!).toISOString(),
         });
       }

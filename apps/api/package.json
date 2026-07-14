@@ -18,6 +18,7 @@
     "seed": "ts-node src/scripts/seed.ts",
     "reset": "ts-node src/scripts/reset.ts",
     "cleanup:dates": "ts-node src/scripts/cleanup-stale-dates.ts",
+    "chain:refund": "ts-node src/scripts/refund-wallets.ts",
     "photos:candidates": "ts-node src/scripts/set-candidate-photos.ts",
     "likes:arm": "ts-node src/scripts/arm-likes.ts",
     "scenarios": "ts-node src/scripts/api-scenarios.ts"

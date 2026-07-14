@@ -51,6 +51,7 @@ export interface WalletHistoryItem {
   fee: string;
   counterpart: { userId: string | null; displayName: string | null };
   status: DateStatus | null;
+  txHash: string | null;
   createdAt: string;
 }
 
@@ -71,6 +72,9 @@ export const datesApi = baseApi.injectEndpoints({
     getDates: build.query<DateView[], void>({
       query: () => "/dates",
       providesTags: ["Date"],
+    }),
+    getDateFee: build.query<{ feeBps: number }, void>({
+      query: () => "/dates/fee",
     }),
     proposeDate: build.mutation<
       DateView,
@@ -106,6 +110,7 @@ export const {
   useGetWalletTransactionsQuery,
   useGetWalletHistoryQuery,
   useGetDatesQuery,
+  useGetDateFeeQuery,
   useProposeDateMutation,
   useDateActionMutation,
   useTopUpWalletMutation,

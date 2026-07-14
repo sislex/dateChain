@@ -17,6 +17,12 @@ export class DatesController {
     return this.dates.list(user.userId);
   }
 
+  /** Escrow commission (bps) — read from the contract, for UI amount previews. */
+  @Get("fee")
+  fee() {
+    return this.dates.getFee();
+  }
+
   @Post()
   propose(@CurrentUser() user: AuthenticatedUser, @Body() dto: ProposeDateDto) {
     return this.dates.propose(

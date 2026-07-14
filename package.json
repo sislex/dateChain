@@ -20,6 +20,7 @@
     "seed": "pnpm --filter @datechain/api seed",
     "reset": "pnpm --filter @datechain/api reset",
     "cleanup:dates": "pnpm --filter @datechain/api cleanup:dates",
+    "chain:refund": "pnpm --filter @datechain/api chain:refund",
     "chain:node": "pnpm --filter @datechain/contracts chain:node",
     "chain:deploy": "pnpm --filter @datechain/contracts chain:deploy",
     "chain:test": "pnpm --filter @datechain/contracts chain:test"
