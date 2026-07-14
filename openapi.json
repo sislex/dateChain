@@ -183,6 +183,63 @@
         ]
       }
     },
+    "/wallet": {
+      "get": {
+        "operationId": "WalletController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "wallet"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/wallet/transactions": {
+      "get": {
+        "operationId": "WalletController_transactions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "wallet"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/wallet/history": {
+      "get": {
+        "operationId": "WalletController_history",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "wallet"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
     "/profile/me": {
       "get": {
         "operationId": "ProfilesController_getMine",
@@ -454,6 +511,25 @@
         ]
       }
     },
+    "/likes": {
+      "get": {
+        "operationId": "MatchingController_likes",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "matching"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
     "/matches": {
       "get": {
         "operationId": "MatchingController_listMatches",
@@ -628,6 +704,368 @@
         ]
       }
     },
+    "/dates": {
+      "get": {
+        "operationId": "DatesController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "dates"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "DatesController_propose",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposeDateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "dates"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/dates/{id}/accept": {
+      "post": {
+        "operationId": "DatesController_accept",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "dates"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/dates/{id}/decline": {
+      "post": {
+        "operationId": "DatesController_decline",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "dates"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/dates/{id}/confirm": {
+      "post": {
+        "operationId": "DatesController_confirm",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "dates"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/dates/{id}/cancel": {
+      "post": {
+        "operationId": "DatesController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "dates"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/notifications": {
+      "get": {
+        "operationId": "NotificationsController_list",
+        "parameters": [
+          {
+            "name": "unreadOnly",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "notifications"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/notifications/read": {
+      "post": {
+        "operationId": "NotificationsController_read",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "notifications"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/dates/{id}/rating": {
+      "post": {
+        "operationId": "RatingsController_rate",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ratings"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "RatingsController_forDate",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ratings"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/users/{userId}/rating": {
+      "get": {
+        "operationId": "RatingsController_summary",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ratings"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/transfers": {
+      "get": {
+        "operationId": "TransfersController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "transfers"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "TransfersController_send",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendTransferDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "transfers"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/transfers/fee": {
+      "get": {
+        "operationId": "TransfersController_fee",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "transfers"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
     "/reports": {
       "post": {
         "operationId": "ModerationController_report",
@@ -695,53 +1133,6 @@
         },
         "tags": [
           "moderation"
-        ],
-        "security": [
-          {
-            "access-token": []
-          }
-        ]
-      }
-    },
-    "/notifications": {
-      "get": {
-        "operationId": "NotificationsController_list",
-        "parameters": [
-          {
-            "name": "unreadOnly",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "notifications"
-        ],
-        "security": [
-          {
-            "access-token": []
-          }
-        ]
-      }
-    },
-    "/notifications/read": {
-      "post": {
-        "operationId": "NotificationsController_read",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "notifications"
         ],
         "security": [
           {
@@ -976,6 +1367,98 @@
       "get": {
         "operationId": "AdminController_audit",
         "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/admin/service-wallet": {
+      "get": {
+        "operationId": "AdminController_getServiceWallet",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "AdminController_setServiceWallet",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetServiceWalletDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      }
+    },
+    "/admin/transfer-fee": {
+      "get": {
+        "operationId": "AdminController_getTransferFee",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "security": [
+          {
+            "access-token": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "AdminController_setTransferFee",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetTransferFeeDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": ""
@@ -1442,6 +1925,64 @@
           "text"
         ]
       },
+      "ProposeDateDto": {
+        "type": "object",
+        "properties": {
+          "inviteeId": {
+            "type": "string",
+            "description": "User to invite (any deck candidate)"
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 1000000,
+            "description": "Amount in whole DATE"
+          },
+          "message": {
+            "type": "string",
+            "description": "Optional opening message"
+          }
+        },
+        "required": [
+          "inviteeId",
+          "amount"
+        ]
+      },
+      "RateDto": {
+        "type": "object",
+        "properties": {
+          "score": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "comment": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "score"
+        ]
+      },
+      "SendTransferDto": {
+        "type": "object",
+        "properties": {
+          "toUserId": {
+            "type": "string",
+            "description": "Recipient user id"
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 1000000,
+            "description": "Amount in whole DATE"
+          }
+        },
+        "required": [
+          "toUserId",
+          "amount"
+        ]
+      },
       "CreateReportDto": {
         "type": "object",
         "properties": {
@@ -1517,6 +2058,32 @@
         },
         "required": [
           "status"
+        ]
+      },
+      "SetServiceWalletDto": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "0x-prefixed Ethereum address for service commissions"
+          }
+        },
+        "required": [
+          "address"
+        ]
+      },
+      "SetTransferFeeDto": {
+        "type": "object",
+        "properties": {
+          "feeBps": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 5000,
+            "description": "Transfer commission in basis points"
+          }
+        },
+        "required": [
+          "feeBps"
         ]
       },
       "SetSettingDto": {

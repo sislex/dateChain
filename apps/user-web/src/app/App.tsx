@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 
+import { ImpersonatePage } from "../features/auth/ImpersonatePage";
 import { ChatPage } from "../features/chat/ChatPage";
 import { MatchesPage } from "../features/chat/MatchesPage";
 import { DatesPage } from "../features/dates/DatesPage";
@@ -18,6 +19,7 @@ export function App() {
   return (
     <Routes>
       <Route path="/welcome" element={<WelcomePage />} />
+      <Route path="/impersonate" element={<ImpersonatePage />} />
       <Route path="/onboarding" element={<OnboardingFlow />} />
       <Route
         path="/app"

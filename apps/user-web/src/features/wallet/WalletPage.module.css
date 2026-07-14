@@ -1,6 +1,6 @@
 .page {
   width: 100%;
-  max-width: 560px;
+  max-width: 760px;
   margin: 0 auto;
   padding: var(--dc-space-4);
   box-sizing: border-box;
@@ -98,4 +98,37 @@
   color: var(--dc-color-nope, #c62828);
   font-weight: var(--dc-font-weight-bold);
   white-space: nowrap;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--dc-font-size-sm);
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: var(--dc-space-2) var(--dc-space-3);
+  border-bottom: 1px solid var(--dc-color-border);
+}
+
+.table th {
+  color: var(--dc-color-text-secondary);
+  font-weight: var(--dc-font-weight-semibold);
+  white-space: nowrap;
+}
+
+.num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.time {
+  white-space: nowrap;
+  color: var(--dc-color-text-secondary);
 }

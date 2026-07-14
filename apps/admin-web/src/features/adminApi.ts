@@ -75,7 +75,7 @@ export const adminApi = baseApi.injectEndpoints({
     }),
     impersonate: build.mutation<
       {
-        user: { id: string; role: UserRole };
+        user: { id: string; role: UserRole; email: string | null; phone: string | null };
         tokens: { accessToken: string; refreshToken: string };
       },
       string
