@@ -19,12 +19,15 @@ const STATUS_LABEL: Record<DateStatus, string> = {
   DECLINED: "Отклонено",
 };
 
+type DatesTab = "proposer" | "invitee";
+
 export function DatesPage() {
   const { data: wallet } = useGetWalletQuery();
   const { data: dates, isLoading } = useGetDatesQuery();
   const [dateAction, { isLoading: acting }] = useDateActionMutation();
   const [rateDate] = useRateDateMutation();
   const [rated, setRated] = useState<Record<string, number>>({});
+  const [tab, setTab] = useState<DatesTab>("proposer");
 
   if (isLoading) {
     return (
@@ -34,7 +37,9 @@ export function DatesPage() {
     );
   }
 
-  const list = dates ?? [];
+  const all = dates ?? [];
+  const list = all.filter((d) => d.role === tab);
+  const countOf = (role: DatesTab) => all.filter((d) => d.role === role).length;
 
   const act = (id: string, action: "accept" | "decline" | "confirm" | "cancel") =>
     dateAction({ id, action });
@@ -53,9 +58,32 @@ export function DatesPage() {
         </div>
       </header>
 
+      <div className={styles.tabs} role="tablist" aria-label="Свидания">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "proposer"}
+          className={`${styles.tab} ${tab === "proposer" ? styles.tabActive : ""}`}
+          onClick={() => setTab("proposer")}
+        >
+          Я предложил ({countOf("proposer")})
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "invitee"}
+          className={`${styles.tab} ${tab === "invitee" ? styles.tabActive : ""}`}
+          onClick={() => setTab("invitee")}
+        >
+          Мне предложили ({countOf("invitee")})
+        </button>
+      </div>
+
       {list.length === 0 && (
         <p className={styles.muted}>
-          Пока нет свиданий. Предложите встречу кандидату в Discovery.
+          {tab === "proposer"
+            ? "Вы пока никому не предлагали свидание. Предложите встречу кандидату в Discovery."
+            : "Вам пока не предлагали свиданий."}
         </p>
       )}
 

@@ -56,7 +56,12 @@ export function LikesPage() {
               >
                 ❤ В ответ
               </Button>
-              <ProposeDateButton inviteeId={l.userId} inviteeName={l.displayName} label="💎" />
+              <ProposeDateButton
+                inviteeId={l.userId}
+                inviteeName={l.displayName}
+                label="💎 Свидание за деньги"
+                fullWidth
+              />
             </div>
           </div>
         ))}

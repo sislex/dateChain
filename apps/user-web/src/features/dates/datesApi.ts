@@ -35,6 +35,19 @@ export interface WalletTx {
   blockNumber: number;
 }
 
+export type WalletHistoryType = "date" | "transfer" | "topup";
+
+export interface WalletHistoryItem {
+  id: string;
+  type: WalletHistoryType;
+  direction: "in" | "out";
+  amount: string;
+  fee: string;
+  counterpart: { userId: string | null; displayName: string | null };
+  status: DateStatus | null;
+  createdAt: string;
+}
+
 export const datesApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     getWallet: build.query<WalletView, void>({
@@ -43,6 +56,10 @@ export const datesApi = baseApi.injectEndpoints({
     }),
     getWalletTransactions: build.query<WalletTx[], void>({
       query: () => "/wallet/transactions",
+      providesTags: ["Wallet"],
+    }),
+    getWalletHistory: build.query<WalletHistoryItem[], void>({
+      query: () => "/wallet/history",
       providesTags: ["Wallet"],
     }),
     getDates: build.query<DateView[], void>({
@@ -74,6 +91,7 @@ export const datesApi = baseApi.injectEndpoints({
 export const {
   useGetWalletQuery,
   useGetWalletTransactionsQuery,
+  useGetWalletHistoryQuery,
   useGetDatesQuery,
   useProposeDateMutation,
   useDateActionMutation,

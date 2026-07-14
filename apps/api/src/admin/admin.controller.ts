@@ -59,7 +59,7 @@ export class AdminController {
   }
 
   @Post("users/:id/impersonate")
-  @Roles(UserRole.SuperAdmin)
+  @Roles(UserRole.Admin)
   impersonate(@CurrentUser() actor: AuthenticatedUser, @Param("id") id: string) {
     return this.admin.impersonate(actor.userId, id);
   }

@@ -135,11 +135,14 @@ export class AdminService {
   async impersonate(
     actorId: string,
     userId: string,
-  ): Promise<{ user: Pick<User, "id" | "role">; tokens: TokenPair }> {
+  ): Promise<{ user: Pick<User, "id" | "role" | "email" | "phone">; tokens: TokenPair }> {
     const user = await this.getUser(userId);
     const tokens = await this.tokens.issueTokenPair(user);
     await this.audit(actorId, "user.impersonate", { type: "user", id: userId });
-    return { user: { id: user.id, role: user.role }, tokens };
+    return {
+      user: { id: user.id, role: user.role, email: user.email, phone: user.phone },
+      tokens,
+    };
   }
 
   async resolveReport(

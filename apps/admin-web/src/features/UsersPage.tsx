@@ -8,13 +8,31 @@ import { hasRank, selectRole } from "../store/authSlice";
 import styles from "./UsersPage.module.css";
 import { useImpersonateMutation, useListUsersQuery, useSetUserStatusMutation } from "./adminApi";
 
+/** user-web origin the impersonated session opens in. */
+const USER_WEB_URL =
+  (import.meta.env.VITE_USER_WEB_URL as string | undefined) ?? "http://localhost:5175";
+
 export function UsersPage() {
   const role = useAppSelector(selectRole);
-  const canImpersonate = hasRank(role, UserRole.SuperAdmin);
+  const canImpersonate = hasRank(role, UserRole.Admin);
   const [q, setQ] = useState("");
   const { data, isLoading } = useListUsersQuery({ q: q || undefined });
   const [setStatus] = useSetUserStatusMutation();
   const [impersonate] = useImpersonateMutation();
+
+  const loginAs = async (id: string) => {
+    const res = await impersonate(id).unwrap();
+    // Tokens go in the hash fragment: it never leaves the browser.
+    const params = new URLSearchParams({
+      access: res.tokens.accessToken,
+      refresh: res.tokens.refreshToken,
+      id: res.user.id,
+      role: res.user.role,
+    });
+    if (res.user.email) params.set("email", res.user.email);
+    if (res.user.phone) params.set("phone", res.user.phone);
+    window.open(`${USER_WEB_URL}/impersonate#${params.toString()}`, "_blank", "noopener");
+  };
 
   return (
     <div data-testid="users-page">
@@ -67,7 +85,7 @@ export function UsersPage() {
                     </Button>
                   )}
                   {canImpersonate && (
-                    <Button size="sm" variant="ghost" onClick={() => impersonate(u.id)}>
+                    <Button size="sm" variant="ghost" onClick={() => loginAs(u.id)}>
                       Войти как
                     </Button>
                   )}

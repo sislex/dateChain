@@ -22,4 +22,10 @@ export class WalletController {
   transactions(@CurrentUser() user: AuthenticatedUser) {
     return this.wallet.transactions(user.userId);
   }
+
+  /** Unified history (dates, transfers, top-ups) with counterpart names and fees. */
+  @Get("history")
+  history(@CurrentUser() user: AuthenticatedUser) {
+    return this.wallet.history(user.userId);
+  }
 }
